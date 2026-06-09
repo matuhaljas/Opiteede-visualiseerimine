@@ -2,6 +2,9 @@ import React from "react";
 import { signInWithPopup } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, googleProvider, db } from "./firebaseConfig";
+import HomePage from './pages/HomePage'
+import './App.css'
+import { Link, Routes, Route } from 'react-router-dom'
 
 function App() {
 
