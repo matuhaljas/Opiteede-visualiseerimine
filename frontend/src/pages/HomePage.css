@@ -45,7 +45,7 @@
 }
 
 .home-main h2 {
-  font-size: 2rem;
+  font-size: 2.5rem;
 }
 
 .home-main p {
@@ -64,6 +64,21 @@
   padding: 10px 24px;
   border-radius: 8px;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary:hover{
+  cursor: pointer;
+}
+
+.google-icon {
+  padding: 2px;
+  background: white;
+  border-radius: 50%;
+  margin-right: 12px;
+  
 }
 
 .btn-secondary {
