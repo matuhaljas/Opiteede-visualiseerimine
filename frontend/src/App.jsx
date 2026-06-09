@@ -1,4 +1,6 @@
+import HomePage from './pages/HomePage'
 import './App.css'
+import { Link, Routes, Route } from 'react-router-dom'
 
 function App() {
 
