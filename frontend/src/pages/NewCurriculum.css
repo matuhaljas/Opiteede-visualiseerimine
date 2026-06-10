@@ -1,0 +1,134 @@
+.nc {
+  background-color: #0a0a0a;
+  color: white;
+  min-height: 100vh;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.nc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #222;
+}
+
+.nc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nc-back {
+  color: white;
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+
+.nc-header-left h1 {
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.nc-year {
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
+.nc-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nc-stat {
+  font-size: 0.85rem;
+  color: #4a9eff;
+}
+
+.nc-stat.green {
+  color: #4caf50;
+}
+
+.nc-btn {
+  background: transparent;
+  border: 1px solid #333;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.nc-btn:hover {
+  border-color: #555;
+}
+
+.nc-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 1px solid #222;
+}
+
+.nc-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #aaa;
+}
+
+.nc-search input {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  font-size: 0.95rem;
+  outline: none;
+  width: 300px;
+}
+
+.nc-tabs {
+  display: flex;
+  gap: 24px;
+  padding: 12px 24px;
+  border-bottom: 1px solid #222;
+}
+
+.nc-tab {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 4px 0;
+}
+
+.nc-tab.active {
+  color: white;
+  border-bottom: 2px solid white;
+}
+
+.nc-canvas {
+  flex: 1;
+  min-height: 500px;
+}
+
+.nc-sidebar {
+  position: fixed;
+  bottom: 40px;
+  left: 24px;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.nc-footer-hint {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #444;
+  font-size: 0.8rem;
+}
