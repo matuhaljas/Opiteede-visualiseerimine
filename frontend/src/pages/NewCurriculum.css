@@ -132,3 +132,33 @@
   color: #444;
   font-size: 0.8rem;
 }
+.modal-input {
+  background: #111;
+  border: 1px solid #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  outline: none;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.blue-btn {
+  background: #4a9eff;
+  border-color: #4a9eff;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #ccc;
+  padding: 4px 0;
+}
