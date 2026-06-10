@@ -1,4 +1,14 @@
-.nc {
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background-color: #0a0a0a;
+}
+
+.ncp {
   background-color: #0a0a0a;
   color: white;
   min-height: 100vh;
@@ -7,7 +17,7 @@
   flex-direction: column;
 }
 
-.nc-header {
+.ncp-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -15,44 +25,44 @@
   border-bottom: 1px solid #222;
 }
 
-.nc-header-left {
+.ncp-header-left {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.nc-back {
+.ncp-back {
   color: white;
   text-decoration: none;
   font-size: 1.2rem;
 }
 
-.nc-header-left h1 {
+.ncp-header-left h1 {
   font-size: 1.3rem;
   margin: 0;
 }
 
-.nc-year {
+.ncp-year {
   color: #aaa;
   font-size: 0.85rem;
 }
 
-.nc-header-right {
+.ncp-header-right {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.nc-stat {
+.ncp-stat {
   font-size: 0.85rem;
   color: #4a9eff;
 }
 
-.nc-stat.green {
+.ncp-stat.green {
   color: #4caf50;
 }
 
-.nc-btn {
+.ncp-btn {
   background: transparent;
   border: 1px solid #333;
   color: white;
@@ -62,11 +72,11 @@
   font-size: 0.85rem;
 }
 
-.nc-btn:hover {
+.ncp-btn:hover {
   border-color: #555;
 }
 
-.nc-toolbar {
+.ncp-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -74,14 +84,14 @@
   border-bottom: 1px solid #222;
 }
 
-.nc-search {
+.ncp-search {
   display: flex;
   align-items: center;
   gap: 8px;
   color: #aaa;
 }
 
-.nc-search input {
+.ncp-search input {
   background: transparent;
   border: none;
   color: #aaa;
@@ -90,14 +100,14 @@
   width: 300px;
 }
 
-.nc-tabs {
+.ncp-tabs {
   display: flex;
   gap: 24px;
   padding: 12px 24px;
   border-bottom: 1px solid #222;
 }
 
-.nc-tab {
+.ncp-tab {
   background: transparent;
   border: none;
   color: #aaa;
@@ -106,17 +116,17 @@
   padding: 4px 0;
 }
 
-.nc-tab.active {
+.ncp-tab.active {
   color: white;
   border-bottom: 2px solid white;
 }
 
-.nc-canvas {
+.ncp-canvas {
   flex: 1;
   min-height: 500px;
 }
 
-.nc-sidebar {
+.ncp-sidebar {
   position: fixed;
   bottom: 40px;
   left: 24px;
@@ -124,7 +134,7 @@
   font-size: 0.9rem;
 }
 
-.nc-footer-hint {
+.ncp-footer-hint {
   position: fixed;
   bottom: 16px;
   left: 50%;
@@ -132,33 +142,9 @@
   color: #444;
   font-size: 0.8rem;
 }
-.modal-input {
-  background: #111;
-  border: 1px solid #333;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-  outline: none;
-  width: 100%;
-  font-size: 0.95rem;
-}
 
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.blue-btn {
-  background: #4a9eff;
-  border-color: #4a9eff;
-}
-
-.filter-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.9rem;
-  color: #ccc;
-  padding: 4px 0;
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
 }
