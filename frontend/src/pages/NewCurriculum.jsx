@@ -1,13 +1,18 @@
+import { useParams } from 'react-router-dom'
 import './NewCurriculum.css'
 
 export default function NewCurriculum() {
+  const { id } = useParams();
+  const oppekavad = JSON.parse(localStorage.getItem("oppekavad") || "[]");
+  const oppekava = oppekavad.find((ok) => ok.id === id);
+
   return (
     <div className="nc">
       <header className="nc-header">
         <div className="nc-header-left">
           <a href="/dashboard" className="nc-back">←</a>
           <div>
-            <h1>Uus õppekava</h1>
+            <h1>{oppekava?.nimi ?? "Õppekava"}</h1>
             <span className="nc-year">2025/2026</span>
           </div>
         </div>

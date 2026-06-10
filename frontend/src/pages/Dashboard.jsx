@@ -8,6 +8,9 @@ function Dashboard() {
   const user = auth.currentUser;
   const navigate = useNavigate();
   const [nimi, setNimi] = useState("");
+  const [oppekavad, setOppekavad] = useState(() =>
+    JSON.parse(localStorage.getItem("oppekavad") || "[]")
+  );
   const dialogRef = useRef(null);
 
   const handleLogout = async () => {
@@ -17,12 +20,16 @@ function Dashboard() {
 
   const handleLoo = () => {
     if (!nimi.trim()) return;
-    console.log("Uus õppekava:", nimi);
-    setNimi("");
+    const uus = { id: Date.now().toString(), nimi: nimi.trim() };
+    const uuedOppekavad = [...oppekavad, uus];
+    localStorage.setItem("oppekavad", JSON.stringify(uuedOppekavad));
+    setOppekavad(uuedOppekavad);
     dialogRef.current.close();
+    navigate(`/new/${uus.id}`);
   };
 
   const handleOpen = () => {
+    setNimi("");
     dialogRef.current.showModal();
   };
 
@@ -47,6 +54,18 @@ function Dashboard() {
       <main>
         <div style={{ display: "flex", justifyContent: "flex-end", padding: "16px 32px" }}>
           <button className="login-btn" onClick={handleOpen}>+ Uus õppekava</button>
+        </div>
+        <div style={{ padding: "0 32px" }}>
+          <h2>Minu Projektid</h2>
+          <ul>
+            {oppekavad.map((ok) => (
+              <li key={ok.id}>
+                <button className="login-btn" onClick={() => navigate(`/new/${ok.id}`)}>
+                  {ok.nimi}
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       </main>
 
