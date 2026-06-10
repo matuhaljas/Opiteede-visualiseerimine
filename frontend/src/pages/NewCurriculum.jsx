@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import './NewCurriculum.css'
+import './HomePage.css'
 
 export default function NewCurriculum() {
   const { id } = useParams()

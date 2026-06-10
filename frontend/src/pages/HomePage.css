@@ -103,3 +103,151 @@
 dialog {
   margin: auto;
 }
+
+.projekt-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.projekt-kaart {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 20px;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.projekt-kaart:hover {
+  border-color: #444;
+}
+
+.projekt-kaart-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.projekt-kaart-top h3 {
+  font-size: 1.1rem;
+}
+
+.projekt-staatus {
+  font-size: 0.75rem;
+  border: 1px solid #444;
+  border-radius: 20px;
+  padding: 2px 10px;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+.projekt-kuupaev {
+  font-size: 0.8rem;
+  color: #4a9eff;
+}
+
+.projekt-bitid {
+  display: flex;
+  gap: 16px;
+  font-size: 0.85rem;
+}
+
+.projekt-knowbit {
+  color: #4a9eff;
+}
+
+.projekt-skillbit {
+  color: #4caf50;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 32px;
+  width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.modal-header h2 {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.modal-header p {
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.modal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-input {
+  background: #111;
+  border: 1px solid #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  outline: none;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modal-btn {
+  background: transparent;
+  border: 1px solid #333;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.modal-btn:hover {
+  border-color: #555;
+}
+
+.modal-btn-primary {
+  background: #4a9eff;
+  border-color: #4a9eff;
+}

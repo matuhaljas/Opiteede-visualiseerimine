@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { auth } from "../firebaseConfig";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -8,10 +8,10 @@ function Dashboard() {
   const user = auth.currentUser;
   const navigate = useNavigate();
   const [nimi, setNimi] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
   const [oppekavad, setOppekavad] = useState(() =>
     JSON.parse(localStorage.getItem("oppekavad") || "[]")
   );
-  const dialogRef = useRef(null);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -20,22 +20,22 @@ function Dashboard() {
 
   const handleLoo = () => {
     if (!nimi.trim()) return;
-    const uus = { id: Date.now().toString(), nimi: nimi.trim() };
+    const uus = { id: Date.now().toString(), nimi: nimi.trim(), loodud: new Date().toLocaleDateString("et-EE") };
     const uuedOppekavad = [...oppekavad, uus];
     localStorage.setItem("oppekavad", JSON.stringify(uuedOppekavad));
     setOppekavad(uuedOppekavad);
-    dialogRef.current.close();
+    setModalOpen(false);
     navigate(`/new/${uus.id}`);
   };
 
   const handleOpen = () => {
     setNimi("");
-    dialogRef.current.showModal();
+    setModalOpen(true);
   };
 
   const handleClose = () => {
     setNimi("");
-    dialogRef.current.close();
+    setModalOpen(false);
   };
 
   return (
@@ -57,33 +57,49 @@ function Dashboard() {
         </div>
         <div style={{ padding: "0 32px" }}>
           <h2>Minu Projektid</h2>
-          <ul>
+          <div className="projekt-grid">
             {oppekavad.map((ok) => (
-              <li key={ok.id}>
-                <button className="login-btn" onClick={() => navigate(`/new/${ok.id}`)}>
-                  {ok.nimi}
-                </button>
-              </li>
+              <div key={ok.id} className="projekt-kaart" onClick={() => navigate(`/new/${ok.id}`)}>
+                <div className="projekt-kaart-top">
+                  <h3>{ok.nimi}</h3>
+                  <span className="projekt-staatus">⏱ Pooleli</span>
+                </div>
+                <p className="projekt-kuupaev">Viimati muudetud: {ok.loodud}</p>
+                <div className="projekt-bitid">
+                  <span className="projekt-knowbit">● 0 KnowBits</span>
+                  <span className="projekt-skillbit">● 0 SkillBits</span>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </main>
 
-      <dialog ref={dialogRef}>
-        <p>Õppekava nimi</p>
-        <input
-          type="text"
-          placeholder="Õppekava nimi"
-          value={nimi}
-          onChange={(e) => setNimi(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleLoo()}
-          autoFocus
-        />
-        <div>
-          <button onClick={handleClose}>Tühista</button>
-          <button onClick={handleLoo}>Loo</button>
+      {modalOpen && (
+        <div className="modal-overlay" onClick={handleClose}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Uus õppekava</h2>
+              <button className="modal-close" onClick={handleClose}>✕</button>
+            </div>
+            <div className="modal-section">
+              <input
+                className="modal-input"
+                type="text"
+                placeholder="Õppekava nimi"
+                value={nimi}
+                onChange={(e) => setNimi(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleLoo()}
+                autoFocus
+              />
+            </div>
+            <div className="modal-footer">
+              <button className="modal-btn" onClick={handleClose}>Tühista</button>
+              <button className="modal-btn modal-btn-primary" onClick={handleLoo}>Loo</button>
+            </div>
+          </div>
         </div>
-      </dialog>
+      )}
     </div>
   );
 }
