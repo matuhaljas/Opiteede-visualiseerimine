@@ -90,7 +90,7 @@ export default function NewCurriculum() {
               </div>
             </div>
             <div className="modal-section">
-              <strong>Lisa kolleegiud</strong>
+              <strong>Lisa kolleegid</strong>
               <div className="modal-invite">
                 <input type="text" placeholder="kollegi@email.ee" />
                 <select>
