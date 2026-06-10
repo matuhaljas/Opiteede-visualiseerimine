@@ -1,20 +1,21 @@
 import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 import './NewCurriculum.css'
 
-export default function NewCurriculumPage() {
+export default function NewCurriculum() {
+  const { id } = useParams()
+  const oppekavad = JSON.parse(localStorage.getItem("oppekavad") || "[]")
+  const oppekava = oppekavad.find((ok) => ok.id === id)
+
   const [shareOpen, setShareOpen] = useState(false)
   const [muudaOpen, setMuudaOpen] = useState(false)
   const [filtridOpen, setFiltridOpen] = useState(false)
   const [publicAccess, setPublicAccess] = useState(false)
-  const [nimi, setNimi] = useState('Uus õppekava')
+  const [nimi, setNimi] = useState(oppekava?.nimi ?? 'Uus õppekava')
   const [aasta, setAasta] = useState('2025/2026')
   const [tempNimi, setTempNimi] = useState('')
   const [tempAasta, setTempAasta] = useState('')
-  const [filtrid, setFiltrid] = useState({
-    knowbits: true,
-    skillbits: true,
-    seosed: true
-  })
+  const [filtrid, setFiltrid] = useState({ knowbits: true, skillbits: true, seosed: true })
 
   const avaMuuda = () => {
     setTempNimi(nimi)
@@ -63,15 +64,12 @@ export default function NewCurriculumPage() {
 
       <div className="ncp-canvas"></div>
 
-      <div className="ncp-sidebar">
-        <strong>Ained:</strong>
-      </div>
+      <div className="ncp-sidebar"><strong>Ained:</strong></div>
 
       <div className="ncp-footer-hint">
         Suumi hiire rattaga • Kliki ühikule seoste nägemiseks
       </div>
 
-      {/* Jaga */}
       {shareOpen && (
         <div className="modal-overlay" onClick={() => setShareOpen(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
@@ -115,33 +113,20 @@ export default function NewCurriculumPage() {
         </div>
       )}
 
-      {/* Muuda */}
       {muudaOpen && (
         <div className="modal-overlay" onClick={() => setMuudaOpen(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <div>
-                <h2>Muuda õppekava</h2>
-              </div>
+              <div><h2>Muuda õppekava</h2></div>
               <button className="modal-close" onClick={() => setMuudaOpen(false)}>✕</button>
             </div>
             <div className="modal-section">
               <label>Nimi</label>
-              <input
-                className="modal-input"
-                type="text"
-                value={tempNimi}
-                onChange={e => setTempNimi(e.target.value)}
-              />
+              <input className="modal-input" type="text" value={tempNimi} onChange={e => setTempNimi(e.target.value)} />
             </div>
             <div className="modal-section">
               <label>Aasta</label>
-              <input
-                className="modal-input"
-                type="text"
-                value={tempAasta}
-                onChange={e => setTempAasta(e.target.value)}
-              />
+              <input className="modal-input" type="text" value={tempAasta} onChange={e => setTempAasta(e.target.value)} />
             </div>
             <div className="modal-footer">
               <button className="ncp-btn" onClick={() => setMuudaOpen(false)}>Tühista</button>
@@ -151,7 +136,6 @@ export default function NewCurriculumPage() {
         </div>
       )}
 
-      {/* Filter */}
       {filtridOpen && (
         <div className="modal-overlay" onClick={() => setFiltridOpen(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
