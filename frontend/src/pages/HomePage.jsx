@@ -13,7 +13,7 @@ export default function HomePage() {
       </header>
 
       <main className="home-main">
-        <h2>Visualiseeri õppekava seosed</h2>
+        <h2>Visualiseeri õppekava seoseid</h2>
         <p>Uuri teadmis- ja oskusühikute vahelisi seoseid spiraalvaate kaudu</p>
         <div className="home-btns">
           <a href="/login" className="btn-primary">Logi sisse</a>
