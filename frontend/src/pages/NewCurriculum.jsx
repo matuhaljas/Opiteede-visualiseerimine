@@ -51,7 +51,6 @@ export default function NewCurriculum() {
 
       <div className="ncp-toolbar">
         <div className="ncp-search">
-          <span>🔍</span>
           <input type="text" placeholder="Otsi ühikuid..." />
         </div>
         <button className="ncp-btn" onClick={() => setFiltridOpen(true)}>Filtrid</button>
@@ -157,7 +156,7 @@ export default function NewCurriculum() {
               </div>
               <div className="filter-row">
                 <input type="checkbox" checked={filtrid.seosed} onChange={e => setFiltrid({...filtrid, seosed: e.target.checked})} />
-                <span>Seosed</span> — ühikutevahelised seosed
+                <span className="blue">Seosed</span> — ühikutevahelised seosed
               </div>
             </div>
             <div className="modal-footer">
