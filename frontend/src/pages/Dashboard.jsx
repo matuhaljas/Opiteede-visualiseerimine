@@ -61,7 +61,7 @@ function Dashboard() {
               <div key={ok.id} className="projekt-kaart" onClick={() => navigate(`/new/${ok.id}`)}>
                 <div className="projekt-kaart-top">
                   <h3>{ok.nimi}</h3>
-                  <span className="projekt-staatus">⏱ Pooleli</span>
+                  <span className="projekt-staatus">Pooleli</span>
                 </div>
                 <p className="projekt-kuupaev">Viimati muudetud: {ok.loodud}</p>
                 <div className="projekt-bitid">
