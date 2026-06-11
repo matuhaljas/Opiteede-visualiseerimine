@@ -1,28 +1,19 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  background-color: #0a0a0a;
-}
-
 .ncp {
-  background-color: #0a0a0a;
-  color: white;
+  background-color: #f4f5f7;
+  color: #1a1a1a;
   min-height: 100vh;
-  font-family: sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
   display: flex;
   flex-direction: column;
 }
 
 .ncp-header {
+  background: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid #dde2ea;
 }
 
 .ncp-header-left {
@@ -32,93 +23,114 @@ html, body {
 }
 
 .ncp-back {
-  color: white;
+  color: #003082;
   text-decoration: none;
   font-size: 1.2rem;
 }
 
 .ncp-header-left h1 {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1a1a;
   margin: 0;
 }
 
 .ncp-year {
-  color: #aaa;
-  font-size: 0.85rem;
+  color: #6b7280;
+  font-size: 0.8rem;
 }
 
 .ncp-header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .ncp-stat {
   font-size: 0.85rem;
-  color: #4a9eff;
+  color: #003082;
 }
 
 .ncp-stat.green {
-  color: #4caf50;
+  color: #2e7d32;
 }
 
 .ncp-btn {
-  background: transparent;
-  border: 1px solid #333;
-  color: white;
+  background: #fff;
+  border: 1px solid #003082;
+  color: #003082;
   padding: 6px 14px;
-  border-radius: 6px;
+  border-radius: 24px;
   cursor: pointer;
   font-size: 0.85rem;
+  font-family: inherit;
+  transition: border-color 0.2s, color 0.2s, transform 0.2s;
 }
 
 .ncp-btn:hover {
-  border-color: #555;
+  background: #003082;
+  border-color: #003082;
+  color: #fff;
 }
 
 .ncp-toolbar {
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
-  border-bottom: 1px solid #222;
+  padding: 10px 24px;
+  border-bottom: 1px solid #dde2ea;
 }
 
 .ncp-search {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #aaa;
+  color: #6b7280;
 }
 
 .ncp-search input {
   background: transparent;
   border: none;
-  color: #aaa;
+  color: #1a1a1a;
   font-size: 0.95rem;
   outline: none;
   width: 300px;
+  font-family: inherit;
+}
+
+.ncp-search input::placeholder {
+  color: #9ca3af;
 }
 
 .ncp-tabs {
+  background: #fff;
   display: flex;
   gap: 24px;
-  padding: 12px 24px;
-  border-bottom: 1px solid #222;
+  padding: 0 24px;
+  border-bottom: 1px solid #dde2ea;
 }
 
 .ncp-tab {
   background: transparent;
   border: none;
-  color: #aaa;
+  border-bottom: 2px solid transparent;
+  color: #6b7280;
   cursor: pointer;
   font-size: 0.9rem;
-  padding: 4px 0;
+  font-family: inherit;
+  padding: 12px 0;
+  transition: color 0.15s;
+}
+
+.ncp-tab:hover {
+  color: #1a1a1a;
 }
 
 .ncp-tab.active {
-  color: white;
-  border-bottom: 2px solid white;
+  color: #003082;
+  border-bottom-color: #003082;
+  font-weight: 600;
 }
 
 .ncp-canvas {
@@ -130,7 +142,7 @@ html, body {
   position: fixed;
   bottom: 40px;
   left: 24px;
-  color: white;
+  color: #6b7280;
   font-size: 0.9rem;
 }
 
@@ -139,59 +151,30 @@ html, body {
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  color: #444;
+  color: #9ca3af;
   font-size: 0.8rem;
 }
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
+.blue {
+  color: #003082;
+  font-weight: bold;
 }
 
-.modal {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 32px;
-  width: 560px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+.blue-btn, .ncp-btn-solid {
+  background: #003082;
+  border: 2px solid #003082;
+  color: #fff;
+  font-weight: 600;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+.ncp-btn-solid:hover {
+  transform: translateY(-3px);
 }
 
-.modal-header h2 {
-  font-size: 1.2rem;
-  margin-bottom: 4px;
-}
-
-.modal-header p {
-  color: #aaa;
-  font-size: 0.85rem;
-}
-
-.modal-close {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.modal-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.blue-btn:hover {
+  background: #002060;
+  border-color: #002060;
+  color: #fff;
 }
 
 .modal-toggle-row {
@@ -202,7 +185,7 @@ html, body {
 }
 
 .modal-toggle-row p {
-  color: #aaa;
+  color: #6b7280;
   font-size: 0.85rem;
   margin-top: 4px;
 }
@@ -210,7 +193,7 @@ html, body {
 .toggle {
   width: 44px;
   height: 24px;
-  background: #333;
+  background: #dde2ea;
   border-radius: 12px;
   cursor: pointer;
   flex-shrink: 0;
@@ -218,7 +201,7 @@ html, body {
 }
 
 .toggle.on {
-  background: #4a9eff;
+  background: #003082;
 }
 
 .modal-invite {
@@ -229,25 +212,31 @@ html, body {
 
 .modal-invite input {
   flex: 1;
-  background: #111;
-  border: 1px solid #333;
-  color: white;
+  background: #f4f5f7;
+  border: 1px solid #dde2ea;
+  color: #1a1a1a;
   padding: 8px 12px;
   border-radius: 6px;
   outline: none;
+  font-family: inherit;
+}
+
+.modal-invite input:focus {
+  border-color: #003082;
 }
 
 .modal-invite select {
-  background: #111;
-  border: 1px solid #333;
-  color: white;
+  background: #f4f5f7;
+  border: 1px solid #dde2ea;
+  color: #1a1a1a;
   padding: 8px 12px;
   border-radius: 6px;
+  font-family: inherit;
 }
 
 .modal-rights {
-  background: #111;
-  border: 1px solid #2a4a7a;
+  background: #f0f4ff;
+  border: 1px solid #c7d5f0;
   border-radius: 8px;
   padding: 16px;
   display: flex;
@@ -261,34 +250,7 @@ html, body {
   flex-direction: column;
   gap: 4px;
   font-size: 0.85rem;
-  color: #ccc;
-}
-
-.blue {
-  color: #4a9eff;
-  font-weight: bold;
-}
-
-.modal-input {
-  background: #111;
-  border: 1px solid #333;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-  outline: none;
-  width: 100%;
-  font-size: 0.95rem;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.blue-btn {
-  background: #4a9eff;
-  border-color: #4a9eff;
+  color: #4b5563;
 }
 
 .filter-row {
@@ -296,7 +258,7 @@ html, body {
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
-  color: #ccc;
+  color: #4b5563;
   padding: 4px 0;
 }
 
