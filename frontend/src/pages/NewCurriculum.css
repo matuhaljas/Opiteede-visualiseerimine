@@ -299,3 +299,12 @@ html, body {
   color: #ccc;
   padding: 4px 0;
 }
+
+.canvas-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 500px;
+  color: #444;
+  font-size: 1rem;
+}

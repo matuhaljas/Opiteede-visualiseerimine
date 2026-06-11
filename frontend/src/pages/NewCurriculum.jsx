@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import './NewCurriculum.css'
-import './HomePage.css'
 
 export default function NewCurriculum() {
   const { id } = useParams()
@@ -17,6 +16,21 @@ export default function NewCurriculum() {
   const [tempNimi, setTempNimi] = useState('')
   const [tempAasta, setTempAasta] = useState('')
   const [filtrid, setFiltrid] = useState({ knowbits: true, skillbits: true, seosed: true })
+  const [aktiivsevahekaard, setAktiivsevahekaard] = useState('spiraal')
+  const [knowbits, setKnowbits] = useState([])
+  const [skillbits, setSkillbits] = useState([])
+
+  useEffect(() => {
+    if (!id) return
+    fetch(`http://localhost:8090/api/knowbits?curriculumId=${id}`)
+      .then(res => res.json())
+      .then(data => setKnowbits(data))
+      .catch(() => {})
+    fetch(`http://localhost:8090/api/skillbits?curriculumId=${id}`)
+      .then(res => res.json())
+      .then(data => setSkillbits(data))
+      .catch(() => {})
+  }, [id])
 
   const avaMuuda = () => {
     setTempNimi(nimi)
@@ -41,9 +55,17 @@ export default function NewCurriculum() {
           </div>
         </div>
         <div className="ncp-header-right">
-          <span className="ncp-stat">● 0 KnowBits</span>
-          <span className="ncp-stat green">● 0 SkillBits</span>
-          <button className="ncp-btn">Ekspordi</button>
+          <span className="ncp-stat">● {knowbits.length} KnowBits</span>
+          <span className="ncp-stat green">● {skillbits.length} SkillBits</span>
+          <button className="ncp-btn" onClick={() => {
+            const data = { nimi, aasta, knowbits, skillbits }
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `${nimi}.json`
+            a.click()
+          }}>Ekspordi</button>
           <button className="ncp-btn">Impordi</button>
           <button className="ncp-btn" onClick={() => setShareOpen(true)}>Jaga</button>
           <button className="ncp-btn" onClick={avaMuuda}>Muuda</button>
@@ -58,11 +80,28 @@ export default function NewCurriculum() {
       </div>
 
       <div className="ncp-tabs">
-        <button className="ncp-tab active">Spiraalvaade (Makro)</button>
-        <button className="ncp-tab">Õpitee Graaf (Mikro)</button>
+        <button
+          className={`ncp-tab ${aktiivsevahekaard === 'spiraal' ? 'active' : ''}`}
+          onClick={() => setAktiivsevahekaard('spiraal')}
+        >Spiraalvaade (Makro)</button>
+        <button
+          className={`ncp-tab ${aktiivsevahekaard === 'opitee' ? 'active' : ''}`}
+          onClick={() => setAktiivsevahekaard('opitee')}
+        >Õpitee Graaf (Mikro)</button>
       </div>
 
-      <div className="ncp-canvas"></div>
+      <div className="ncp-canvas">
+        {aktiivsevahekaard === 'spiraal' && (
+          <div className="canvas-placeholder">
+            <p>Spiraalvaade tuleb siia</p>
+          </div>
+        )}
+        {aktiivsevahekaard === 'opitee' && (
+          <div className="canvas-placeholder">
+            <p>Õpitee Graaf tuleb siia</p>
+          </div>
+        )}
+      </div>
 
       <div className="ncp-sidebar"><strong>Ained:</strong></div>
 
@@ -90,7 +129,7 @@ export default function NewCurriculum() {
               </div>
             </div>
             <div className="modal-section">
-              <strong>Lisa kolleegid</strong>
+              <strong>Lisa kolleegiud</strong>
               <div className="modal-invite">
                 <input type="text" placeholder="kollegi@email.ee" />
                 <select>
@@ -104,9 +143,9 @@ export default function NewCurriculum() {
             <div className="modal-rights">
               <strong>Õigused:</strong>
               <ul>
-                <li><span className="blue">Vaataja</span> — saab projekti vaadata, ei saa muuta</li>
-                <li><span className="blue">Panustaja</span> — saab lisada ja muuta ühikuid</li>
-                <li><span className="blue">Admin</span> — saab projekti täielikult hallata ja jagada</li>
+                <li><strong>Vaataja:</strong> Saab projektit vaadata</li>
+                <li><strong>Panustaja:</strong> Saab projektit muuta</li>
+                <li><strong>Admin:</strong> Täielik juurdepääs</li>
               </ul>
             </div>
           </div>
@@ -117,20 +156,28 @@ export default function NewCurriculum() {
         <div className="modal-overlay" onClick={() => setMuudaOpen(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <div><h2>Muuda õppekava</h2></div>
+              <h2>Muuda õppekava</h2>
               <button className="modal-close" onClick={() => setMuudaOpen(false)}>✕</button>
             </div>
             <div className="modal-section">
-              <label>Nimi</label>
-              <input className="modal-input" type="text" value={tempNimi} onChange={e => setTempNimi(e.target.value)} />
+              <label>Õppekava nimi</label>
+              <input
+                type="text"
+                value={tempNimi}
+                onChange={e => setTempNimi(e.target.value)}
+              />
             </div>
             <div className="modal-section">
-              <label>Aasta</label>
-              <input className="modal-input" type="text" value={tempAasta} onChange={e => setTempAasta(e.target.value)} />
+              <label>Õppeaasta</label>
+              <input
+                type="text"
+                value={tempAasta}
+                onChange={e => setTempAasta(e.target.value)}
+              />
             </div>
-            <div className="modal-footer">
-              <button className="ncp-btn" onClick={() => setMuudaOpen(false)}>Tühista</button>
-              <button className="ncp-btn blue-btn" onClick={salvesta}>Salvesta</button>
+            <div className="modal-actions">
+              <button className="ncp-btn" onClick={salvesta}>Salvesta</button>
+              <button className="ncp-btn-secondary" onClick={() => setMuudaOpen(false)}>Tühista</button>
             </div>
           </div>
         </div>
@@ -140,28 +187,37 @@ export default function NewCurriculum() {
         <div className="modal-overlay" onClick={() => setFiltridOpen(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <div>
-                <h2>Filtrid</h2>
-                <p>Vali mida spiraalvaates näidata</p>
-              </div>
+              <h2>Filtrid</h2>
               <button className="modal-close" onClick={() => setFiltridOpen(false)}>✕</button>
             </div>
             <div className="modal-section">
-              <div className="filter-row">
-                <input type="checkbox" checked={filtrid.knowbits} onChange={e => setFiltrid({...filtrid, knowbits: e.target.checked})} />
-                <span className="blue">KnowBits</span> — teadmisühikud
-              </div>
-              <div className="filter-row">
-                <input type="checkbox" checked={filtrid.skillbits} onChange={e => setFiltrid({...filtrid, skillbits: e.target.checked})} />
-                <span className="blue">SkillBits</span> — oskusühikud
-              </div>
-              <div className="filter-row">
-                <input type="checkbox" checked={filtrid.seosed} onChange={e => setFiltrid({...filtrid, seosed: e.target.checked})} />
-                <span className="blue">Seosed</span> — ühikutevahelised seosed
-              </div>
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={filtrid.knowbits}
+                  onChange={e => setFiltrid({ ...filtrid, knowbits: e.target.checked })}
+                />
+                KnowBits
+              </label>
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={filtrid.skillbits}
+                  onChange={e => setFiltrid({ ...filtrid, skillbits: e.target.checked })}
+                />
+                SkillBits
+              </label>
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={filtrid.seosed}
+                  onChange={e => setFiltrid({ ...filtrid, seosed: e.target.checked })}
+                />
+                Seosed
+              </label>
             </div>
-            <div className="modal-footer">
-              <button className="ncp-btn blue-btn" onClick={() => setFiltridOpen(false)}>Rakenda</button>
+            <div className="modal-actions">
+              <button className="ncp-btn" onClick={() => setFiltridOpen(false)}>Valmis</button>
             </div>
           </div>
         </div>
