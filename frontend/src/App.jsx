@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage' // muutus: ./pages/ mitte ./
 import './App.css'
 import ProjectPage from "./pages/ProjectPage";
 import TestProjectPage from "./pages/TestProjectPage";
+import TestProjectPage2 from "./pages/TestProjectPage2";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/project" element={<ProjectPage />} />
       <Route path="/test-project" element={<TestProjectPage />} />
+      <Route path="/test-project2" element={<TestProjectPage2 />} />
       
     </Routes>
   );

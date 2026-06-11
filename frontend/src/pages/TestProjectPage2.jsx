@@ -54,6 +54,8 @@ function TestProjectPage() {
             const pivot = new THREE.Group();
             scene.add(pivot);
 
+            //Koonus
+
             const CONE_HEIGHT = 20;
             const CONE_BASE_R = 7;
             const CONE_TIP_Y = CONE_HEIGHT / 2;
@@ -66,8 +68,43 @@ function TestProjectPage() {
                 return CONE_BASE_R * (1 - t);
             }
 
-            //Jooned
+            /*
+            // single tube
+            const tubePts = [];
+            for (let i = 0; i <= 200; i++) {
+                const progress = i / 200;
+                const angle = progress * Math.PI * 2 * tubeWraps;
+                const y = CONE_TIP_Y - startOffset * CONE_HEIGHT - progress * (CONE_HEIGHT * (1 - startOffset)) * 0.96;
+                const r = coneRadius(y);
+                tubePts.push(new THREE.Vector3(Math.cos(angle) * r, y, Math.sin(angle) * r));
+            }
+            const coneCurve = new THREE.CatmullRomCurve3(tubePts);
+            const tubeGeo = new THREE.TubeGeometry(coneCurve, 200, 0.03, 8, false);
+            const tubeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.2, transparent: true });
+            pivot.add(new THREE.Mesh(tubeGeo, tubeMat));
+            */
 
+            //Tuub
+            const tubePts = [];
+            const tubeWraps = 3; // how many times it spirals around
+            const tubeSteps = 200; // smoothness
+
+            for (let i = 0; i <= tubeSteps; i++) {
+                const progress = i / tubeSteps;
+                const angle = progress * Math.PI * 2 * tubeWraps;
+                const y = CONE_TIP_Y - progress * CONE_HEIGHT * 0.96;
+                const r = coneRadius(y);
+                tubePts.push(new THREE.Vector3(Math.cos(angle) * r, y, Math.sin(angle) * r));
+            }
+
+            const coneCurve = new THREE.CatmullRomCurve3(tubePts);
+            const tubeGeo = new THREE.TubeGeometry(coneCurve, 200, 0.5, 8, false);
+            const tubeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.8, transparent: true });
+            pivot.add(new THREE.Mesh(tubeGeo, tubeMat));
+
+
+            //Jooned
+            /*
             DATA.subjects.forEach((subj, si) => {
                 const spread = 3;
                 //const angleBase = (si / NUM_SUBJECTS) * spread;
@@ -110,6 +147,7 @@ function TestProjectPage() {
                 }
                 console.log(armPts)
             });
+            */
             /*
             const coneGeo = new THREE.ConeGeometry(CONE_BASE_R, CONE_HEIGHT, 64, 1, true);
             const coneMat = new THREE.MeshBasicMaterial({ color: 0x2a2a40, wireframe: false, transparent: true, opacity: 0.07, side: THREE.DoubleSide });
