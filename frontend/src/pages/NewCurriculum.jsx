@@ -32,6 +32,7 @@ export default function NewCurriculum() {
 
   return (
     <div className="ncp">
+      <div className="hp-topbar" />
       <header className="ncp-header">
         <div className="ncp-header-left">
           <a href="/dashboard" className="ncp-back">←</a>
@@ -54,7 +55,7 @@ export default function NewCurriculum() {
         <div className="ncp-search">
           <input type="text" placeholder="Otsi ühikuid..." />
         </div>
-        <button className="ncp-btn" onClick={() => setFiltridOpen(true)}>Filtrid</button>
+        <button className="ncp-btn ncp-btn-solid" onClick={() => setFiltridOpen(true)}>Filtrid</button>
       </div>
 
       <div className="ncp-tabs">
@@ -64,7 +65,8 @@ export default function NewCurriculum() {
 
       <div className="ncp-canvas"></div>
 
-      <div className="ncp-sidebar"><strong>Ained:</strong></div>
+
+      <footer className="footer" />
 
       <div className="ncp-footer-hint">
         Suumi hiire rattaga • Kliki ühikule seoste nägemiseks

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from 'react-router-dom'
 import HomePage from './pages/HomePage'
-import LoginPage from './pages/LoginPage'
 import NewCurriculum from './pages/NewCurriculum'
 import './App.css'
 import Dashboard from './pages/Dashboard'
@@ -17,7 +16,7 @@ function ProtectedRoute({ children }) {
   }, []);
 
   if (user === undefined) return null;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/" replace />;
   return children;
 }
 
@@ -25,8 +24,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+<Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/new/:id" element={<ProtectedRoute><NewCurriculum /></ProtectedRoute>} />
     </Routes>
   );

@@ -40,19 +40,21 @@ function Dashboard() {
 
   return (
     <div className="home">
+      <div className="home-topbar" />
       <header className="home-header">
         <div className="home-logo">
+          <span className="logo-icon">⬡</span>
           <div>
             <h1>Ainekavade Visualiseerimine</h1>
             <p className="home-p">Tere tulemast, {user?.displayName}</p>
           </div>
         </div>
-        <button onClick={handleLogout} className="login-btn">Logi välja</button>
+        <button onClick={handleLogout} className="hp-btn-solid">Logi välja</button>
       </header>
 
       <main>
         <div style={{ display: "flex", justifyContent: "flex-end", padding: "16px 32px" }}>
-          <button className="login-btn" onClick={handleOpen}>+ Uus õppekava</button>
+          <button className="hp-btn" onClick={handleOpen}>+ Uus õppekava</button>
         </div>
         <div style={{ padding: "0 32px" }}>
           <h2>Minu Projektid</h2>
@@ -61,7 +63,6 @@ function Dashboard() {
               <div key={ok.id} className="projekt-kaart" onClick={() => navigate(`/new/${ok.id}`)}>
                 <div className="projekt-kaart-top">
                   <h3>{ok.nimi}</h3>
-                  <span className="projekt-staatus">Pooleli</span>
                 </div>
                 <p className="projekt-kuupaev">Viimati muudetud: {ok.loodud}</p>
                 <div className="projekt-bitid">
@@ -73,6 +74,8 @@ function Dashboard() {
           </div>
         </div>
       </main>
+
+      <footer className="footer" />
 
       {modalOpen && (
         <div className="modal-overlay" onClick={handleClose}>
