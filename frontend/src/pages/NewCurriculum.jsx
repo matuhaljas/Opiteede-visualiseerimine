@@ -85,10 +85,9 @@ export default function NewCurriculum() {
 
       <div className="ncp-toolbar">
         <div className="ncp-search">
-          <span>🔍</span>
           <input type="text" placeholder="Otsi ühikuid..." />
         </div>
-        <button className="ncp-btn" onClick={() => setFiltridOpen(true)}>Filtrid</button>
+        <button className="ncp-btn ncp-btn-solid" onClick={() => setFiltridOpen(true)}>Filtrid</button>
       </div>
 
       <div className="ncp-tabs">
@@ -115,11 +114,11 @@ export default function NewCurriculum() {
         )}
       </div>
 
-      <div className="ncp-sidebar"><strong>Ained:</strong></div>
-
       <div className="ncp-footer-hint">
         Suumi hiire rattaga • Kliki ühikule seoste nägemiseks
       </div>
+
+      <footer className="footer" />
 
       {shareOpen && (
         <div className="modal-overlay" onClick={() => setShareOpen(false)}>

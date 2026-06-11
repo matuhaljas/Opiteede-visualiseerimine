@@ -27,7 +27,10 @@ export default function HomePage() {
       <div className="hp-topbar" />
       <header className="hp-header">
         <div className="hp-logo">
-          <span className="hp-logo-title">Ainekavade Visualiseerimine</span>
+          <span className="hp-logo-icon">⬡</span>
+          <div>
+            <span className="hp-logo-title">Ainekavade Visualiseerimine</span>
+          </div>
         </div>
       </header>
       <main className="hp-main">

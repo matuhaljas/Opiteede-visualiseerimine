@@ -167,7 +167,7 @@
   font-weight: 600;
 }
 
-.ncp-btn-solid:hover {
+.ncp-btn-solid:hover, .blue-btn:hover {
   transform: translateY(-3px);
 }
 
