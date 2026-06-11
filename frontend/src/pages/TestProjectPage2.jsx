@@ -307,7 +307,7 @@ function TestProjectPage() {
 
     return (
         // For example, style={{marginRight: spacing + 'em'}}
-        <div>
+        <div style={{ width: "100%", height: "100vh" }}>
             <div ref={contRef} style={{ position: "relative", width: "100%", height: "100%" }}>
                 <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
                 <div id="tooltip" style={{ position: "absolute", top: "0", left: "0", pointerEvents: "none", opacity: "0", transition: "opacity 0.15s", background: "rgba(10,10,20,0.88)", border: "0.5px solid rgba(255,255,255,0.15)", borderRadius: "8px", padding: "10px 14px", maxWidth: "220px" }}>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import './NewCurriculum.css'
+import TestProjectPage2 from './TestProjectPage2'
 
 export default function NewCurriculum() {
   const { id } = useParams()
@@ -103,8 +104,8 @@ export default function NewCurriculum() {
 
       <div className="ncp-canvas">
         {aktiivsevahekaard === 'spiraal' && (
-          <div className="canvas-placeholder">
-            <p>Spiraalvaade tuleb siia</p>
+          <div className="canvas-placeholder" style={{ width: "100%", height: "100vh" }}>
+            <TestProjectPage2/>
           </div>
         )}
         {aktiivsevahekaard === 'opitee' && (
