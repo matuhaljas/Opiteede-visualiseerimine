@@ -8,5 +8,8 @@ public class SkillBitRequest {
     private String description;
     private String subject;
     private String gradeLevel;
+    private String depthLevel;
+    private String importance;
+    private String notes;
     private Long curriculumId;
 }

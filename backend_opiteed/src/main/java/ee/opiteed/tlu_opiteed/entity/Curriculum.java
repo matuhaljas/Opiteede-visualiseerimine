@@ -6,43 +6,38 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "skill_bits")
+@Table(name = "curricula")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SkillBit {
+public class Curriculum {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String title;
+    private String name;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    private String year;
 
-    private String subject;
-
-    private String gradeLevel;
-
-    private String depthLevel;
-
-    private String importance;
-
-    @Column(columnDefinition = "TEXT")
-    private String notes;
-
+    // Firebase UID omanikust (frontend saadab auth.currentUser.uid)
     @Column(nullable = false)
-    private Long curriculumId;
-
-    private String createdBy;
+    private String ownerUid;
 
     private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        updatedAt = createdAt;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }

@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface KnowBitRepository extends JpaRepository<KnowBit, Long> {
     List<KnowBit> findByCurriculumId(Long curriculumId);
+    long countByCurriculumId(Long curriculumId);
+    void deleteByCurriculumId(Long curriculumId);
 }

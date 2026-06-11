@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface SkillBitRepository extends JpaRepository<SkillBit, Long> {
     List<SkillBit> findByCurriculumId(Long curriculumId);
+    long countByCurriculumId(Long curriculumId);
+    void deleteByCurriculumId(Long curriculumId);
 }

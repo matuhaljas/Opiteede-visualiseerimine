@@ -27,6 +27,13 @@ public class KnowBit {
 
     private String gradeLevel;
 
+    private String depthLevel;
+
+    private String importance;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
     @Column(nullable = false)
     private Long curriculumId;
 

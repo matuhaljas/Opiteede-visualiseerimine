@@ -29,6 +29,9 @@ public class KnowBitService {
                 .description(req.getDescription())
                 .subject(req.getSubject())
                 .gradeLevel(req.getGradeLevel())
+                .depthLevel(req.getDepthLevel())
+                .importance(req.getImportance())
+                .notes(req.getNotes())
                 .curriculumId(req.getCurriculumId())
                 .createdBy(createdBy)
                 .build());
@@ -42,6 +45,9 @@ public class KnowBitService {
         kb.setDescription(req.getDescription());
         kb.setSubject(req.getSubject());
         kb.setGradeLevel(req.getGradeLevel());
+        kb.setDepthLevel(req.getDepthLevel());
+        kb.setImportance(req.getImportance());
+        kb.setNotes(req.getNotes());
         return toResponse(knowBitRepository.save(kb));
     }
 
@@ -54,7 +60,8 @@ public class KnowBitService {
 
     private KnowBitResponse toResponse(KnowBit kb) {
         return new KnowBitResponse(kb.getId(), kb.getTitle(), kb.getDescription(),
-                kb.getSubject(), kb.getGradeLevel(), kb.getCurriculumId(),
+                kb.getSubject(), kb.getGradeLevel(), kb.getDepthLevel(),
+                kb.getImportance(), kb.getNotes(), kb.getCurriculumId(),
                 kb.getCreatedBy(), kb.getCreatedAt());
     }
 }

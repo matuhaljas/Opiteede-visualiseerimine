@@ -29,6 +29,9 @@ public class SkillBitService {
                 .description(req.getDescription())
                 .subject(req.getSubject())
                 .gradeLevel(req.getGradeLevel())
+                .depthLevel(req.getDepthLevel())
+                .importance(req.getImportance())
+                .notes(req.getNotes())
                 .curriculumId(req.getCurriculumId())
                 .createdBy(createdBy)
                 .build());
@@ -42,6 +45,9 @@ public class SkillBitService {
         sb.setDescription(req.getDescription());
         sb.setSubject(req.getSubject());
         sb.setGradeLevel(req.getGradeLevel());
+        sb.setDepthLevel(req.getDepthLevel());
+        sb.setImportance(req.getImportance());
+        sb.setNotes(req.getNotes());
         return toResponse(skillBitRepository.save(sb));
     }
 
@@ -54,7 +60,8 @@ public class SkillBitService {
 
     private SkillBitResponse toResponse(SkillBit sb) {
         return new SkillBitResponse(sb.getId(), sb.getTitle(), sb.getDescription(),
-                sb.getSubject(), sb.getGradeLevel(), sb.getCurriculumId(),
+                sb.getSubject(), sb.getGradeLevel(), sb.getDepthLevel(),
+                sb.getImportance(), sb.getNotes(), sb.getCurriculumId(),
                 sb.getCreatedBy(), sb.getCreatedAt());
     }
 }

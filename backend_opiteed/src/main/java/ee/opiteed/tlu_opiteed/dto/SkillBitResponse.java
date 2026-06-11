@@ -13,6 +13,9 @@ public class SkillBitResponse {
     private String description;
     private String subject;
     private String gradeLevel;
+    private String depthLevel;
+    private String importance;
+    private String notes;
     private Long curriculumId;
     private String createdBy;
     private LocalDateTime createdAt;
