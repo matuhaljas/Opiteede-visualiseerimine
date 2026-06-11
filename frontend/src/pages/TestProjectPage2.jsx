@@ -68,26 +68,11 @@ function TestProjectPage() {
                 return CONE_BASE_R * (1 - t);
             }
 
-            /*
-            // single tube
-            const tubePts = [];
-            for (let i = 0; i <= 200; i++) {
-                const progress = i / 200;
-                const angle = progress * Math.PI * 2 * tubeWraps;
-                const y = CONE_TIP_Y - startOffset * CONE_HEIGHT - progress * (CONE_HEIGHT * (1 - startOffset)) * 0.96;
-                const r = coneRadius(y);
-                tubePts.push(new THREE.Vector3(Math.cos(angle) * r, y, Math.sin(angle) * r));
-            }
-            const coneCurve = new THREE.CatmullRomCurve3(tubePts);
-            const tubeGeo = new THREE.TubeGeometry(coneCurve, 200, 0.03, 8, false);
-            const tubeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.2, transparent: true });
-            pivot.add(new THREE.Mesh(tubeGeo, tubeMat));
-            */
-
             //Tuub
             const tubePts = [];
-            const tubeWraps = 3; // how many times it spirals around
+            const tubeWraps = 1.5; // how many times it spirals around
             const tubeSteps = 200; // smoothness
+            //const startOffset = 0.2;
 
             for (let i = 0; i <= tubeSteps; i++) {
                 const progress = i / tubeSteps;
@@ -99,18 +84,83 @@ function TestProjectPage() {
 
             const coneCurve = new THREE.CatmullRomCurve3(tubePts);
             const tubeGeo = new THREE.TubeGeometry(coneCurve, 200, 0.5, 8, false);
-            const tubeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.8, transparent: true });
+            const tubeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0, transparent: true });
             pivot.add(new THREE.Mesh(tubeGeo, tubeMat));
 
 
+
+
+            // after building the curve, place nodes ON it using getPoint()
+            DATA.subjects.forEach((subj, si) => {
+                const armPts = [];
+                const angleOffset = (si / NUM_SUBJECTS) * Math.PI * 2;
+                const interpolationSteps = 20; // points between each topic
+
+                const totalTopics = subj.topics.length;
+
+                // generate dense points along the full tube length for this subject
+                for (let i = 0; i <= (totalTopics - 1) * interpolationSteps; i++) {
+                    const progress = i / ((totalTopics - 1) * interpolationSteps);
+
+                    const pointOnTube = coneCurve.getPoint(progress);
+                    const tangent = coneCurve.getTangent(progress).normalize();
+
+                    const up = new THREE.Vector3(0, 1, 0);
+                    const binormal = new THREE.Vector3().crossVectors(tangent, up).normalize();
+                    const normal = new THREE.Vector3().crossVectors(binormal, tangent).normalize();
+
+                    const orbitRadius = 0.8;
+                    const offset = new THREE.Vector3()
+                        .addScaledVector(normal, Math.cos(angleOffset) * orbitRadius)
+                        .addScaledVector(binormal, Math.sin(angleOffset) * orbitRadius);
+
+                    armPts.push(pointOnTube.clone().add(offset));
+                }
+
+                // place nodes at topic positions only
+                subj.topics.forEach((topicName, ti) => {
+                    const progress = ti / Math.max(totalTopics - 1, 1);
+
+                    const pointOnTube = coneCurve.getPoint(progress);
+                    const tangent = coneCurve.getTangent(progress).normalize();
+
+                    const up = new THREE.Vector3(0, 1, 0);
+                    const binormal = new THREE.Vector3().crossVectors(tangent, up).normalize();
+                    const normal = new THREE.Vector3().crossVectors(binormal, tangent).normalize();
+
+                    const orbitRadius = 0.8;
+                    const offset = new THREE.Vector3()
+                        .addScaledVector(normal, Math.cos(angleOffset) * orbitRadius)
+                        .addScaledVector(binormal, Math.sin(angleOffset) * orbitRadius);
+
+                    const finalPos = pointOnTube.clone().add(offset);
+
+                    const nodeSize = 0.15 + (1 - progress) * 0.12;
+                    const geo = new THREE.SphereGeometry(nodeSize, 16, 16);
+                    const mat = new THREE.MeshPhongMaterial({ color: subj.color, shininess: 90, emissive: subj.color, emissiveIntensity: 0.08 });
+                    const mesh = new THREE.Mesh(geo, mat);
+                    mesh.position.copy(finalPos);
+                    mesh.userData = { subject: subj.name, name: topicName, outcomes: Math.floor(Math.random() * 10 + 1), color: subj.color };
+                    pivot.add(mesh);
+                    nodes.push(mesh);
+                });
+
+                // line uses dense armPts so it follows the tube curve
+                if (armPts.length > 1) {
+                    const curve = new THREE.CatmullRomCurve3(armPts);
+                    const armTubeGeo = new THREE.TubeGeometry(curve, 80, 0.04, 8, false);
+                    const armTubeMat = new THREE.MeshBasicMaterial({ color: subj.color, opacity: 0.6, transparent: true });
+                    pivot.add(new THREE.Mesh(armTubeGeo, armTubeMat));
+                }
+            });
             //Jooned
             /*
             DATA.subjects.forEach((subj, si) => {
                 const spread = 3;
                 //const angleBase = (si / NUM_SUBJECTS) * spread;
                 const armPts = [];
-
-
+ 
+ 
                 subj.topics.forEach((topicName, ti) => {
                     const totalTopics = subj.topics.length;
                     const progress = ti / Math.max(totalTopics - 1, 1);
@@ -119,13 +169,13 @@ function TestProjectPage() {
                     //const y = CONE_BASE_Y + (startOffset + progress * (1 - startOffset)) * CONE_HEIGHT * 0.96;
                     //const y = CONE_BASE_Y + progress * CONE_HEIGHT * 0.96;
                     const r = coneRadius(y);
-
+ 
                     const tipSpread = (si / NUM_SUBJECTS) * spread;
                     const wraps = 1.5;
                     const angle = tipSpread + progress * Math.PI * 2 * wraps;
                     const x = Math.cos(angle) * r;
                     const z = Math.sin(angle) * r;
-
+ 
                     const nodeSize = 0.15 + (1 - progress) * 0.12;
                     const geo = new THREE.SphereGeometry(nodeSize, 16, 16);
                     const mat = new THREE.MeshPhongMaterial({ color: subj.color, shininess: 90, emissive: subj.color, emissiveIntensity: 0.08 });
@@ -136,9 +186,9 @@ function TestProjectPage() {
                     nodes.push(mesh);
                     armPts.push(new THREE.Vector3(x, y, z));
                 });
-
+ 
                 //Jooned ühendamaks uhikuid
-
+ 
                 if (armPts.length > 1) {
                     const curve = new THREE.CatmullRomCurve3(armPts);
                     const tubeGeo = new THREE.TubeGeometry(curve, 80, 0.05, 8, false);
