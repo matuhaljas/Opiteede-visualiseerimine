@@ -218,8 +218,8 @@ function TestProjectPage() {
             });
             */
             let isDragging = false, prevX = 0, prevY = 0;
-            let targetRotX = -0.3, targetRotY = 0;
-            let rotX = -0.3, rotY = 0;
+            let targetRotX = 3.14, targetRotY = 0;
+            let rotX = 3.14, rotY = 0;
             let zoom = 24;
             const raycaster = new THREE.Raycaster();
             const mouse = new THREE.Vector2();
