@@ -130,6 +130,8 @@ function TestProjectPage() {
             });
             */
             let isDragging = false, prevX = 0, prevY = 0;
+            let isPanning = false;
+            let panY = 0, targetPanY = 0;
             let targetRotX = 3.14, targetRotY = 0;
             let rotX = 3.14, rotY = 0;
             let zoom = 24;
@@ -173,13 +175,26 @@ function TestProjectPage() {
                     //targetRotX = Math.max(-1.4, Math.min(1.4, targetRotX));
                     prevX = cx; prevY = cy;
                 }
+                if (isPanning) {
+                    targetPanY += (cy - prevY) * 0.03;
+                    prevX = cx; prevY = cy;
+                }
             });
 
             //Liigutamine ja hõljumine
 
-            canvas.addEventListener('mousedown', e => { isDragging = true;[prevX, prevY] = getXY(e); canvas.style.cursor = 'grabbing'; });
-            canvas.addEventListener('mouseup', () => { isDragging = false; canvas.style.cursor = 'grab'; });
-            canvas.addEventListener('mouseleave', () => { isDragging = false; tt.style.opacity = '0'; });
+            canvas.addEventListener('mousedown', e => {
+                if (e.button === 2) {
+                    isPanning = true;
+                } else {
+                    isDragging = true;
+                }
+                [prevX, prevY] = getXY(e);
+                canvas.style.cursor = 'grabbing';
+            });
+            canvas.addEventListener('contextmenu', e => e.preventDefault());
+            canvas.addEventListener('mouseup', () => { isDragging = false; isPanning = false; canvas.style.cursor = 'grab'; });
+            canvas.addEventListener('mouseleave', () => { isDragging = false; isPanning = false; tt.style.opacity = '0'; });
             canvas.addEventListener('click', () => {
                 if (hoveredNode) {
                     const n = hoveredNode;
@@ -207,7 +222,10 @@ function TestProjectPage() {
                 pivot.rotation.x = rotX;
                 pivot.rotation.y = rotY;
 
+                panY += (targetPanY - panY) * 0.07;
                 camera.position.z = zoom;
+                camera.position.y = 4 + panY;
+                camera.lookAt(0, panY, 0);
                 renderer.render(scene, camera);
             }
             animate();
@@ -230,7 +248,7 @@ function TestProjectPage() {
 
                 <div id="legend" style={{ position: "absolute", top: "12px", left: "12px", display: "flex", flexWrap: "wrap", gap: "6px" }}></div>
 
-                <div style={{ position: "absolute", bottom: "12px", right: "12px", fontSize: "11px", color: "rgba(255,255,255,0.3)", fontFamily: "sans-serif" }}>drag to orbit · scroll to zoom · click a node</div>
+                <div style={{ position: "absolute", bottom: "12px", right: "12px", fontSize: "11px", color: "rgba(255,255,255,0.3)", fontFamily: "sans-serif" }}>vasak klikk: pööra · parem klikk: liiguta · rull: suumi</div>
                 {/*
                 <div id="info-panel" ref={infoPanelRef} style={{ position: "absolute", top: "0", right: "0", width: "220px", height: "100%", background: "rgba(10,10,20,0.92)", borderLeft: "0.5px solid rgba(255,255,255,0.1)", padding: "16px", transform: "translateX(100%)", transition: "transform 0.25s", overflowY: "auto" }}>
                     <button onClick={closePanel} style={{ background: "none", border: "none", color: "#888", fontSize: "18px", cursor: "pointer", float: "right", padding: "0", lineHeight: "1" }}>×</button>
