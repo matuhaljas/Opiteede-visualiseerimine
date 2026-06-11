@@ -9,6 +9,7 @@ import TestProjectPage2 from "./pages/TestProjectPage2";
 import Dashboard from './pages/Dashboard'
 import { auth } from './firebaseConfig'
 import { onAuthStateChanged } from 'firebase/auth'
+import LoginPage from "./pages/LoginPage";
 
 function ProtectedRoute({ children }) {
   const [user, setUser] = useState(undefined);
