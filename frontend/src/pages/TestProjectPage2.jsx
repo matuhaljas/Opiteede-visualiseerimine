@@ -1,38 +1,45 @@
+// MUUDATUSED (11.06.26):
+// - Komponent võtab nüüd vastu "data" propi ({ subjects: [{ name, color, topics }] })
+// - Kui data prop on antud (pärisandmed backendist), kasutatakse seda — muidu näidatakse DEMO_DATA
+// - Lisatud korralik Three.js cleanup: cancelAnimationFrame + AbortController listeneritele + renderer.dispose()
+//   (varem jäi vana renderer aktiivseks kui NewCurriculum ümber renderdas)
 import { useEffect, useRef, React } from 'react'
 import * as THREE from 'three'
 
-function TestProjectPage2() {
+const DEMO_DATA = {
+    subjects: [
+        { name: "Üldõpetus", color: 0x7c8aff, topics: ["Kokkuvõttev ülesanne", "Loodusõpetus", "Matemaatika", "Eesti keel"] },
+        { name: "Õpipädevus", color: 0x4ecfb3, topics: ["Tulemuse põhjendamine", "Õpistrateegiad", "Enesehindamine", "Tagasiside kasutamine", "Koostöö", "Planeerimisoskus"] },
+        { name: "Matemaatika", color: 0xff8a65, topics: ["Arvud ja tehted", "Algebra", "Geomeetria", "Statistika", "Tõenäosus", "Mõõtmine", "Funktsioonid", "Võrrandid"] },
+        { name: "Eesti keel", color: 0xf06292, topics: ["Lugemine", "Kirjutamine", "Kuulamine", "Kõnelemine", "Grammatika", "Sõnavara", "Tekstiloome"] },
+        { name: "Loodusõpetus", color: 0xa5d06a, topics: ["Eluslooduse mitmekesisus", "Aine ja energia", "Keskkond", "Keha ja tervis", "Looduse uurimine", "Planeet Maa"] },
+        { name: "Ajalugu", color: 0xffd54f, topics: ["Muinasaeg", "Keskaeg", "Uusaeg", "Lähiajalugu", "Eesti ajalugu", "Maailma ajalugu", "Allikad ja meetodid"] },
+    ]
+};
+
+function TestProjectPage2({ data }) {
 
     const canvasRef = useRef(null);
-    //const infoPanelRef = useRef(null);
     const contRef = useRef(null);
-
-    /*
-    const closePanel = () => {
-        infoPanelRef.current.style.transform = "translateX(100%)";
-    };
-    */
 
     useEffect(() => {
 
-        const timeout = setTimeout(() => {
+        // Kasuta pärisandmeid kui need on antud, muidu demo
+        const DATA = (data && data.subjects && data.subjects.length) ? data : DEMO_DATA;
 
-            const DATA = {
-                subjects: [
-                    { name: "Üldõpetus", color: 0x7c8aff, topics: ["Kokkuvõttev ülesanne", "Loodusõpetus", "Matemaatika", "Eesti keel"] },
-                    { name: "Õpipädevus", color: 0x4ecfb3, topics: ["Tulemuse põhjendamine", "Õpistrateegiad", "Enesehindamine", "Tagasiside kasutamine", "Koostöö", "Planeerimisoskus"] },
-                    { name: "Matemaatika", color: 0xff8a65, topics: ["Arvud ja tehted", "Algebra", "Geomeetria", "Statistika", "Tõenäosus", "Mõõtmine", "Funktsioonid", "Võrrandid"] },
-                    { name: "Eesti keel", color: 0xf06292, topics: ["Lugemine", "Kirjutamine", "Kuulamine", "Kõnelemine", "Grammatika", "Sõnavara", "Tekstiloome"] },
-                    { name: "Loodusõpetus", color: 0xa5d06a, topics: ["Eluslooduse mitmekesisus", "Aine ja energia", "Keskkond", "Keha ja tervis", "Looduse uurimine", "Planeet Maa"] },
-                    { name: "Ajalugu", color: 0xffd54f, topics: ["Muinasaeg", "Keskaeg", "Uusaeg", "Lähiajalugu", "Eesti ajalugu", "Maailma ajalugu", "Allikad ja meetodid"] },
-                ]
-            };
+        let rafId = 0;
+        const controller = new AbortController();
+        const signal = controller.signal;
+        let renderer = null;
+
+        const timeout = setTimeout(() => {
 
             const canvas = canvasRef.current;
             const cont = contRef.current;
+            if (!canvas || !cont) return;
             const W = cont.clientWidth, H = cont.clientHeight;
 
-            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.setSize(W, H);
             renderer.setClearColor("#F4F5F7", 1);
@@ -43,14 +50,6 @@ function TestProjectPage2() {
             camera.lookAt(0, 0, 0);
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-            /*
-            const dl = new THREE.DirectionalLight(0xffffff, 0.9);
-            dl.position.set(8, 16, 10);
-            scene.add(dl);
-            const dl2 = new THREE.DirectionalLight(0x8899ff, 0.3);
-            dl2.position.set(-8, -4, -10);
-            scene.add(dl2);
-            */
             const pivot = new THREE.Group();
             scene.add(pivot);
 
@@ -72,7 +71,6 @@ function TestProjectPage2() {
             const tubePts = [];
             const tubeWraps = 1.5; // how many times it spirals around
             const tubeSteps = 200; // smoothness
-            //const startOffset = 0.2;
 
             for (let i = 0; i <= tubeSteps; i++) {
                 const progress = i / tubeSteps;
@@ -86,9 +84,6 @@ function TestProjectPage2() {
             const tubeGeo = new THREE.TubeGeometry(coneCurve, 200, 0.5, 8, false);
             const tubeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0, transparent: true });
             pivot.add(new THREE.Mesh(tubeGeo, tubeMat));
-
-
-
 
             // after building the curve, place nodes ON it using getPoint()
             DATA.subjects.forEach((subj, si) => {
@@ -201,14 +196,13 @@ function TestProjectPage2() {
                 if (isDragging) {
                     targetRotY += (cx - prevX) * 0.007;
                     targetRotX += (cy - prevY) * 0.007;
-                    //targetRotX = Math.max(-1.4, Math.min(1.4, targetRotX));
                     prevX = cx; prevY = cy;
                 }
                 if (isPanning) {
                     targetPanY += (cy - prevY) * 0.03;
                     prevX = cx; prevY = cy;
                 }
-            });
+            }, { signal });
 
             //Liigutamine ja hõljumine
 
@@ -220,32 +214,33 @@ function TestProjectPage2() {
                 }
                 [prevX, prevY] = getXY(e);
                 canvas.style.cursor = 'grabbing';
-            });
-            canvas.addEventListener('contextmenu', e => e.preventDefault());
-            canvas.addEventListener('mouseup', () => { isDragging = false; isPanning = false; canvas.style.cursor = 'grab'; });
-            canvas.addEventListener('mouseleave', () => { isDragging = false; isPanning = false; tt.style.opacity = '0'; });
+            }, { signal });
+            canvas.addEventListener('contextmenu', e => e.preventDefault(), { signal });
+            canvas.addEventListener('mouseup', () => { isDragging = false; isPanning = false; canvas.style.cursor = 'grab'; }, { signal });
+            canvas.addEventListener('mouseleave', () => { isDragging = false; isPanning = false; if (tt) tt.style.opacity = '0'; }, { signal });
             canvas.addEventListener('click', () => {
                 if (hoveredNode) {
                     const n = hoveredNode;
                     const panel = document.getElementById('info-panel');
+                    if (!panel) return;
                     document.getElementById('panel-subject').textContent = n.userData.subject;
                     document.getElementById('panel-name').textContent = n.userData.name;
                     document.getElementById('panel-outcomes').textContent = n.userData.outcomes + ' õpitulemust seotud selle teemaga.';
                     panel.style.transform = 'translateX(0)';
                 }
-            });
+            }, { signal });
 
             //Zoom
 
             canvas.addEventListener('wheel', e => {
                 zoom = Math.max(8, Math.min(45, zoom + e.deltaY * 0.04));
                 e.preventDefault();
-            }, { passive: false });
+            }, { passive: false, signal });
 
-            window.closePanel = () => { document.getElementById('info-panel').style.transform = 'translateX(100%)'; };
+            window.closePanel = () => { const p = document.getElementById('info-panel'); if (p) p.style.transform = 'translateX(100%)'; };
 
             function animate() {
-                requestAnimationFrame(animate);
+                rafId = requestAnimationFrame(animate);
                 rotX += (targetRotX - rotX) * 0.07;
                 rotY += (targetRotY - rotY) * 0.07;
                 pivot.rotation.x = rotX;
@@ -261,11 +256,15 @@ function TestProjectPage2() {
 
         }, 0);
 
-        return () => clearTimeout(timeout);
-    }, []);
+        return () => {
+            clearTimeout(timeout);
+            controller.abort();
+            if (rafId) cancelAnimationFrame(rafId);
+            if (renderer) renderer.dispose();
+        };
+    }, [data]);
 
     return (
-        // For example, style={{marginRight: spacing + 'em'}}
         <div style={{ width: "100%", height: "100%" }}>
             <div ref={contRef} style={{ position: "relative", width: "100%", height: "100%" }}>
                 <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
@@ -278,14 +277,6 @@ function TestProjectPage2() {
                 <div id="legend" style={{ position: "absolute", top: "12px", left: "12px", display: "flex", flexWrap: "wrap", gap: "6px" }}></div>
 
                 <div style={{ position: "absolute", bottom: "12px", right: "12px", fontSize: "11px", color: "rgba(255,255,255,0.3)", fontFamily: "sans-serif" }}>vasak klikk: pööra · parem klikk: liiguta · rull: suumi</div>
-                {/*
-                <div id="info-panel" ref={infoPanelRef} style={{ position: "absolute", top: "0", right: "0", width: "220px", height: "100%", background: "rgba(10,10,20,0.92)", borderLeft: "0.5px solid rgba(255,255,255,0.1)", padding: "16px", transform: "translateX(100%)", transition: "transform 0.25s", overflowY: "auto" }}>
-                    <button onClick={closePanel} style={{ background: "none", border: "none", color: "#888", fontSize: "18px", cursor: "pointer", float: "right", padding: "0", lineHeight: "1" }}></button>
-                    <div id="panel-subject" style={{ fontSize: "11px", color: "#7c8aff", fontFamily: "sans-serif", marginBottom: "4px", marginTop: "4px" }}></div>
-                    <div id="panel-name" style={{ fontSize: "14px", color: "#e8e8f0", fontFamily: "sans-serif", fontWeight: "500", lineHeight: "1.4", marginBottom: "10px" }}></div>
-                    <div id="panel-outcomes" style={{ fontSize: "12px", color: "#aaa", fontFamily: "sans-serif" }}></div>
-                </div>
-                */}
             </div>
         </div>
     )

@@ -1,31 +1,53 @@
-import React, { useState } from "react";
+// MUUDATUSED (11.06.26):
+// - Õppekavad liigutatud localStorage'ist backendi (GET /api/curricula?ownerUid)
+// - Uue õppekava loomine teeb POST /api/curricula (ownerUid = Firebase auth.currentUser.uid)
+// - Kaardid näitavad nüüd päris KnowBit/SkillBit arve backendist (mitte alati "0")
+// - updatedAt kuupäev tuleb backendist
+import React, { useState, useEffect } from "react";
 import { auth } from "../firebaseConfig";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import './HomePage.css'
+
+const API = import.meta.env.VITE_BACK_URL ?? "http://localhost:8090";
 
 function Dashboard() {
   const user = auth.currentUser;
   const navigate = useNavigate();
   const [nimi, setNimi] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [oppekavad, setOppekavad] = useState(() =>
-    JSON.parse(localStorage.getItem("oppekavad") || "[]")
-  );
+  const [oppekavad, setOppekavad] = useState([]);
+
+  const laeOppekavad = (uid) => {
+    fetch(`${API}/api/curricula?ownerUid=${uid}`)
+      .then((res) => res.json())
+      .then((data) => setOppekavad(data))
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    if (user?.uid) laeOppekavad(user.uid);
+  }, [user?.uid]);
 
   const handleLogout = async () => {
     await signOut(auth);
     navigate("/");
   };
 
-  const handleLoo = () => {
-    if (!nimi.trim()) return;
-    const uus = { id: Date.now().toString(), nimi: nimi.trim(), loodud: new Date().toLocaleDateString("et-EE") };
-    const uuedOppekavad = [...oppekavad, uus];
-    localStorage.setItem("oppekavad", JSON.stringify(uuedOppekavad));
-    setOppekavad(uuedOppekavad);
-    setModalOpen(false);
-    navigate(`/new/${uus.id}`);
+  const handleLoo = async () => {
+    if (!nimi.trim() || !user?.uid) return;
+    try {
+      const res = await fetch(`${API}/api/curricula`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: nimi.trim(), year: "2025/2026", ownerUid: user.uid }),
+      });
+      const uus = await res.json();
+      setModalOpen(false);
+      navigate(`/new/${uus.id}`);
+    } catch {
+      alert("Õppekava loomine ebaõnnestus");
+    }
   };
 
   const handleOpen = () => {
@@ -37,6 +59,9 @@ function Dashboard() {
     setNimi("");
     setModalOpen(false);
   };
+
+  const formatKuupaev = (iso) =>
+    iso ? new Date(iso).toLocaleDateString("et-EE") : "";
 
   return (
     <div className="home">
@@ -62,12 +87,12 @@ function Dashboard() {
             {oppekavad.map((ok) => (
               <div key={ok.id} className="projekt-kaart" onClick={() => navigate(`/new/${ok.id}`)}>
                 <div className="projekt-kaart-top">
-                  <h3>{ok.nimi}</h3>
+                  <h3>{ok.name}</h3>
                 </div>
-                <p className="projekt-kuupaev">Viimati muudetud: {ok.loodud}</p>
+                <p className="projekt-kuupaev">Viimati muudetud: {formatKuupaev(ok.updatedAt)}</p>
                 <div className="projekt-bitid">
-                  <span className="projekt-knowbit">● 0 KnowBits</span>
-                  <span className="projekt-skillbit">● 0 SkillBits</span>
+                  <span className="projekt-knowbit">● {ok.knowBitCount} KnowBits</span>
+                  <span className="projekt-skillbit">● {ok.skillBitCount} SkillBits</span>
                 </div>
               </div>
             ))}

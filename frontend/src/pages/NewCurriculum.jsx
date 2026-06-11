@@ -1,19 +1,29 @@
-import { useState, useEffect } from 'react'
+// MUUDATUSED (11.06.26):
+// - Õppekava nimi/aasta laetakse backendist (GET /api/curricula/{id}), mitte localStorage'ist
+// - KnowBitid ja SkillBitid laetakse backendist (GET /api/knowbits?curriculumId, GET /api/skillbits?curriculumId)
+// - "Lisa ühik" nupп teeb päris POST /api/knowbits või /api/skillbits (ei salvesta ainult state'i)
+// - "Muuda → Salvesta" teeb PUT /api/curricula/{id} (nimi ja aasta salvestuvad DB-sse)
+// - Lisatud "Aine" väli "Lisa ühik" modaalis (subject väli — spiraalvaade grupeerib aine järgi)
+// - spiraalvaade saab pärisandmeid: knowbits+skillbits grupeeritakse aine kaupa → TestProjectPage2 data prop
+import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import './NewCurriculum.css'
 import TestProjectPage2 from './TestProjectPage2'
 
+const API = import.meta.env.VITE_BACK_URL ?? 'http://localhost:8090'
+
+// Värvipalett ainete eristamiseks spiraalvaates
+const SUBJECT_COLORS = [0x7c8aff, 0x4ecfb3, 0xff8a65, 0xf06292, 0xa5d06a, 0xffd54f, 0x9575cd, 0x4fc3f7]
+
 export default function NewCurriculum() {
   const { id } = useParams()
-  const oppekavad = JSON.parse(localStorage.getItem("oppekavad") || "[]")
-  const oppekava = oppekavad.find((ok) => ok.id === id)
 
   const [shareOpen, setShareOpen] = useState(false)
   const [muudaOpen, setMuudaOpen] = useState(false)
   const [filtridOpen, setFiltridOpen] = useState(false)
   const [lisaOpen, setLisaOpen] = useState(false)
   const [publicAccess, setPublicAccess] = useState(false)
-  const [nimi, setNimi] = useState(oppekava?.nimi ?? 'Uus õppekava')
+  const [nimi, setNimi] = useState('Uus õppekava')
   const [aasta, setAasta] = useState('2025/2026')
   const [tempNimi, setTempNimi] = useState('')
   const [tempAasta, setTempAasta] = useState('')
@@ -21,27 +31,61 @@ export default function NewCurriculum() {
   const [aktiivsevahekaard, setAktiivsevahekaard] = useState('spiraal')
   const [knowbits, setKnowbits] = useState([])
   const [skillbits, setSkillbits] = useState([])
+  const [otsing, setOtsing] = useState('')
   const [uusYhik, setUusYhik] = useState({
     tyyyp: 'knowbit',
     pealkiri: '',
     kirjeldus: '',
+    aine: '',
     klass: '1. klass',
     suvenemistase: 'Tase 1',
     olulisus: 'Määramata',
     markmed: ''
   })
 
-  useEffect(() => {
+  const laeYhikud = () => {
     if (!id) return
-    fetch(`http://localhost:8090/api/knowbits?curriculumId=${id}`)
+    fetch(`${API}/api/knowbits?curriculumId=${id}`)
       .then(res => res.json())
       .then(data => setKnowbits(data))
       .catch(() => {})
-    fetch(`http://localhost:8090/api/skillbits?curriculumId=${id}`)
+    fetch(`${API}/api/skillbits?curriculumId=${id}`)
       .then(res => res.json())
       .then(data => setSkillbits(data))
       .catch(() => {})
+  }
+
+  useEffect(() => {
+    if (!id) return
+    fetch(`${API}/api/curricula/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data?.name) setNimi(data.name)
+        if (data?.year) setAasta(data.year)
+      })
+      .catch(() => {})
+    laeYhikud()
   }, [id])
+
+  // Grupeeri kõik ühikud aine järgi spiraalvaate jaoks
+  const spiraalData = useMemo(() => {
+    const koik = [
+      ...(filtrid.knowbits ? knowbits : []),
+      ...(filtrid.skillbits ? skillbits : [])
+    ]
+    const grupid = new Map()
+    koik.forEach(y => {
+      const aine = y.subject || 'Määramata'
+      if (!grupid.has(aine)) grupid.set(aine, [])
+      grupid.get(aine).push(y.title)
+    })
+    const subjects = [...grupid.entries()].map(([name, topics], i) => ({
+      name,
+      color: SUBJECT_COLORS[i % SUBJECT_COLORS.length],
+      topics
+    }))
+    return subjects.length ? { subjects } : null
+  }, [knowbits, skillbits, filtrid])
 
   const avaMuuda = () => {
     setTempNimi(nimi)
@@ -49,10 +93,45 @@ export default function NewCurriculum() {
     setMuudaOpen(true)
   }
 
-  const salvesta = () => {
+  const salvesta = async () => {
     setNimi(tempNimi)
     setAasta(tempAasta)
     setMuudaOpen(false)
+    if (!id) return
+    try {
+      await fetch(`${API}/api/curricula/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: tempNimi, year: tempAasta })
+      })
+    } catch { /* võrgu viga ignoreeritakse */ }
+  }
+
+  const lisaYhik = async () => {
+    if (!uusYhik.pealkiri.trim() || !id) return
+    const endpoint = uusYhik.tyyyp === 'knowbit' ? 'knowbits' : 'skillbits'
+    const payload = {
+      title: uusYhik.pealkiri.trim(),
+      description: uusYhik.kirjeldus,
+      subject: uusYhik.aine,
+      gradeLevel: uusYhik.klass,
+      depthLevel: uusYhik.suvenemistase,
+      importance: uusYhik.olulisus,
+      notes: uusYhik.markmed,
+      curriculumId: Number(id)
+    }
+    try {
+      await fetch(`${API}/api/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      laeYhikud()
+      setLisaOpen(false)
+      setUusYhik({ tyyyp: 'knowbit', pealkiri: '', kirjeldus: '', aine: '', klass: '1. klass', suvenemistase: 'Tase 1', olulisus: 'Määramata', markmed: '' })
+    } catch {
+      alert('Ühiku lisamine ebaõnnestus')
+    }
   }
 
   return (
@@ -86,7 +165,7 @@ export default function NewCurriculum() {
 
       <div className="ncp-toolbar">
         <div className="ncp-search">
-          <input type="text" placeholder="Otsi ühikuid..." />
+          <input type="text" placeholder="Otsi ühikuid..." value={otsing} onChange={e => setOtsing(e.target.value)} />
         </div>
         <button className="ncp-btn ncp-btn-solid" onClick={() => setFiltridOpen(true)}>Filtrid</button>
       </div>
@@ -105,7 +184,7 @@ export default function NewCurriculum() {
       <div className="ncp-canvas">
         {aktiivsevahekaard === 'spiraal' && (
           <div className="canvas-placeholder" style={{ width: "100%", height: "100vh" }}>
-            <TestProjectPage2/>
+            <TestProjectPage2 data={spiraalData} />
           </div>
         )}
         {aktiivsevahekaard === 'opitee' && (
@@ -240,6 +319,10 @@ export default function NewCurriculum() {
               <input className="modal-input" type="text" placeholder="nt. Rütmimustrid" value={uusYhik.pealkiri} onChange={e => setUusYhik({...uusYhik, pealkiri: e.target.value})} />
             </div>
             <div className="modal-section">
+              <label>Aine *</label>
+              <input className="modal-input" type="text" placeholder="nt. Matemaatika" value={uusYhik.aine} onChange={e => setUusYhik({...uusYhik, aine: e.target.value})} />
+            </div>
+            <div className="modal-section">
               <label>Kirjeldus</label>
               <input className="modal-input" type="text" placeholder="Lühike kirjeldus ühiku kohta" value={uusYhik.kirjeldus} onChange={e => setUusYhik({...uusYhik, kirjeldus: e.target.value})} />
             </div>
@@ -267,15 +350,7 @@ export default function NewCurriculum() {
             </div>
             <div className="modal-footer">
               <button className="ncp-btn" onClick={() => setLisaOpen(false)}>Tühista</button>
-              <button className="ncp-btn blue-btn" onClick={() => {
-                if (uusYhik.tyyyp === 'knowbit') {
-                  setKnowbits([...knowbits, uusYhik])
-                } else {
-                  setSkillbits([...skillbits, uusYhik])
-                }
-                setLisaOpen(false)
-                setUusYhik({ tyyyp: 'knowbit', pealkiri: '', kirjeldus: '', klass: '1. klass', suvenemistase: 'Tase 1', olulisus: 'Määramata', markmed: '' })
-              }}>Lisa</button>
+              <button className="ncp-btn blue-btn" onClick={lisaYhik}>Lisa</button>
             </div>
           </div>
         </div>
