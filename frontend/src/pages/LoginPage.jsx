@@ -3,8 +3,11 @@ import { signInWithPopup } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, googleProvider, db } from "../firebaseConfig";
 import './HomePage.css'
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
+  const navigate = useNavigate(); // siin, mitte loginWithGoogle sees
+
   const loginWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -14,7 +17,7 @@ function LoginPage() {
         email: user.email,
         lastLogin: new Date()
       });
-      alert(`Welcome ${user.displayName}`);
+      navigate('/dashboard');
     } catch (error) {
       alert(error.message);
     }
@@ -24,7 +27,7 @@ function LoginPage() {
     <div className="home">
       <header className="home-header">
         <div className="home-logo">
-          <span className="logo-icon">⬡</span>
+          <span className="logo-icon"></span>
           <div>
             <h1>Ainekavade Visualiseerimine</h1>
           </div>
@@ -53,3 +56,4 @@ function LoginPage() {
 }
 
 export default LoginPage;
+

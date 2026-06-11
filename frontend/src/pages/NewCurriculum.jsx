@@ -1,0 +1,284 @@
+import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import './NewCurriculum.css'
+
+export default function NewCurriculum() {
+  const { id } = useParams()
+  const oppekavad = JSON.parse(localStorage.getItem("oppekavad") || "[]")
+  const oppekava = oppekavad.find((ok) => ok.id === id)
+
+  const [shareOpen, setShareOpen] = useState(false)
+  const [muudaOpen, setMuudaOpen] = useState(false)
+  const [filtridOpen, setFiltridOpen] = useState(false)
+  const [lisaOpen, setLisaOpen] = useState(false)
+  const [publicAccess, setPublicAccess] = useState(false)
+  const [nimi, setNimi] = useState(oppekava?.nimi ?? 'Uus õppekava')
+  const [aasta, setAasta] = useState('2025/2026')
+  const [tempNimi, setTempNimi] = useState('')
+  const [tempAasta, setTempAasta] = useState('')
+  const [filtrid, setFiltrid] = useState({ knowbits: true, skillbits: true, seosed: true })
+  const [aktiivsevahekaard, setAktiivsevahekaard] = useState('spiraal')
+  const [knowbits, setKnowbits] = useState([])
+  const [skillbits, setSkillbits] = useState([])
+  const [uusYhik, setUusYhik] = useState({
+    tyyyp: 'knowbit',
+    pealkiri: '',
+    kirjeldus: '',
+    klass: '1. klass',
+    suvenemistase: 'Tase 1',
+    olulisus: 'Määramata',
+    markmed: ''
+  })
+
+  useEffect(() => {
+    if (!id) return
+    fetch(`http://localhost:8090/api/knowbits?curriculumId=${id}`)
+      .then(res => res.json())
+      .then(data => setKnowbits(data))
+      .catch(() => {})
+    fetch(`http://localhost:8090/api/skillbits?curriculumId=${id}`)
+      .then(res => res.json())
+      .then(data => setSkillbits(data))
+      .catch(() => {})
+  }, [id])
+
+  const avaMuuda = () => {
+    setTempNimi(nimi)
+    setTempAasta(aasta)
+    setMuudaOpen(true)
+  }
+
+  const salvesta = () => {
+    setNimi(tempNimi)
+    setAasta(tempAasta)
+    setMuudaOpen(false)
+  }
+
+  return (
+    <div className="ncp">
+      <header className="ncp-header">
+        <div className="ncp-header-left">
+          <a href="/dashboard" className="ncp-back">←</a>
+          <div>
+            <h1>{nimi}</h1>
+            <span className="ncp-year">{aasta}</span>
+          </div>
+        </div>
+        <div className="ncp-header-right">
+          <span className="ncp-stat">● {knowbits.length} KnowBits</span>
+          <span className="ncp-stat green">● {skillbits.length} SkillBits</span>
+          <button className="ncp-btn" onClick={() => {
+            const data = { nimi, aasta, knowbits, skillbits }
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `${nimi}.json`
+            a.click()
+          }}>Ekspordi</button>
+          <button className="ncp-btn">Impordi</button>
+          <button className="ncp-btn" onClick={() => setShareOpen(true)}>Jaga</button>
+          <button className="ncp-btn" onClick={avaMuuda}>Muuda</button>
+          <button className="ncp-btn blue-btn" onClick={() => setLisaOpen(true)}>+ Lisa ühik</button>
+        </div>
+      </header>
+
+      <div className="ncp-toolbar">
+        <div className="ncp-search">
+          <input type="text" placeholder="Otsi ühikuid..." />
+        </div>
+        <button className="ncp-btn ncp-btn-solid" onClick={() => setFiltridOpen(true)}>Filtrid</button>
+      </div>
+
+      <div className="ncp-tabs">
+        <button
+          className={`ncp-tab ${aktiivsevahekaard === 'spiraal' ? 'active' : ''}`}
+          onClick={() => setAktiivsevahekaard('spiraal')}
+        >Spiraalvaade (Makro)</button>
+        <button
+          className={`ncp-tab ${aktiivsevahekaard === 'opitee' ? 'active' : ''}`}
+          onClick={() => setAktiivsevahekaard('opitee')}
+        >Õpitee Graaf (Mikro)</button>
+      </div>
+
+      <div className="ncp-canvas">
+        {aktiivsevahekaard === 'spiraal' && (
+          <div className="canvas-placeholder">
+            <p>Spiraalvaade tuleb siia</p>
+          </div>
+        )}
+        {aktiivsevahekaard === 'opitee' && (
+          <div className="canvas-placeholder">
+            <p>Õpitee Graaf tuleb siia</p>
+          </div>
+        )}
+      </div>
+
+      <div className="ncp-footer-hint">
+        Suumi hiire rattaga • Kliki ühikule seoste nägemiseks
+      </div>
+
+      <footer className="footer" />
+
+      {shareOpen && (
+        <div className="modal-overlay" onClick={() => setShareOpen(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <h2>Jaga projekti: {nimi}</h2>
+                <p>Lisa kolleege või jaga projekti lingiga</p>
+              </div>
+              <button className="modal-close" onClick={() => setShareOpen(false)}>✕</button>
+            </div>
+            <div className="modal-section">
+              <div className="modal-toggle-row">
+                <div>
+                  <strong>Avalik juurdepääs</strong>
+                  <p>Igaüks lingiga saab projekti vaadata (ainult lugemisõigus)</p>
+                </div>
+                <div className={`toggle ${publicAccess ? 'on' : ''}`} onClick={() => setPublicAccess(!publicAccess)}></div>
+              </div>
+            </div>
+            <div className="modal-section">
+              <strong>Lisa kolleegiud</strong>
+              <div className="modal-invite">
+                <input type="text" placeholder="kollegi@email.ee" />
+                <select>
+                  <option>Vaataja</option>
+                  <option>Panustaja</option>
+                  <option>Admin</option>
+                </select>
+                <button className="ncp-btn">+ Lisa</button>
+              </div>
+            </div>
+            <div className="modal-rights">
+              <strong>Õigused:</strong>
+              <ul>
+                <li><span className="blue">Vaataja</span> — saab projekti vaadata, ei saa muuta</li>
+                <li><span className="blue">Panustaja</span> — saab lisada ja muuta ühikuid</li>
+                <li><span className="blue">Admin</span> — saab projekti täielikult hallata ja jagada</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {muudaOpen && (
+        <div className="modal-overlay" onClick={() => setMuudaOpen(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <div><h2>Muuda õppekava</h2></div>
+              <button className="modal-close" onClick={() => setMuudaOpen(false)}>✕</button>
+            </div>
+            <div className="modal-section">
+              <label>Nimi</label>
+              <input className="modal-input" type="text" value={tempNimi} onChange={e => setTempNimi(e.target.value)} />
+            </div>
+            <div className="modal-section">
+              <label>Aasta</label>
+              <input className="modal-input" type="text" value={tempAasta} onChange={e => setTempAasta(e.target.value)} />
+            </div>
+            <div className="modal-footer">
+              <button className="ncp-btn" onClick={() => setMuudaOpen(false)}>Tühista</button>
+              <button className="ncp-btn blue-btn" onClick={salvesta}>Salvesta</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {filtridOpen && (
+        <div className="modal-overlay" onClick={() => setFiltridOpen(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <h2>Filtrid</h2>
+                <p>Vali mida spiraalvaates näidata</p>
+              </div>
+              <button className="modal-close" onClick={() => setFiltridOpen(false)}>✕</button>
+            </div>
+            <div className="modal-section">
+              <div className="filter-row">
+                <input type="checkbox" checked={filtrid.knowbits} onChange={e => setFiltrid({...filtrid, knowbits: e.target.checked})} />
+                <span className="blue">KnowBits</span> — teadmisühikud
+              </div>
+              <div className="filter-row">
+                <input type="checkbox" checked={filtrid.skillbits} onChange={e => setFiltrid({...filtrid, skillbits: e.target.checked})} />
+                <span className="blue">SkillBits</span> — oskusühikud
+              </div>
+              <div className="filter-row">
+                <input type="checkbox" checked={filtrid.seosed} onChange={e => setFiltrid({...filtrid, seosed: e.target.checked})} />
+                <span>Seosed</span> — ühikutevahelised seosed
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="ncp-btn blue-btn" onClick={() => setFiltridOpen(false)}>Rakenda</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {lisaOpen && (
+        <div className="modal-overlay" onClick={() => setLisaOpen(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <h2>Lisa uus ühik</h2>
+                <p>Täida väljad, et luua või muuta KnowBit või SkillBit ühikut</p>
+              </div>
+              <button className="modal-close" onClick={() => setLisaOpen(false)}>✕</button>
+            </div>
+            <div className="modal-section">
+              <label>Ühiku tüüp</label>
+              <select className="modal-input" value={uusYhik.tyyyp} onChange={e => setUusYhik({...uusYhik, tyyyp: e.target.value})}>
+                <option value="knowbit">KnowBit (Teadmus)</option>
+                <option value="skillbit">SkillBit (Oskus)</option>
+              </select>
+            </div>
+            <div className="modal-section">
+              <label>Pealkiri *</label>
+              <input className="modal-input" type="text" placeholder="nt. Rütmimustrid" value={uusYhik.pealkiri} onChange={e => setUusYhik({...uusYhik, pealkiri: e.target.value})} />
+            </div>
+            <div className="modal-section">
+              <label>Kirjeldus</label>
+              <input className="modal-input" type="text" placeholder="Lühike kirjeldus ühiku kohta" value={uusYhik.kirjeldus} onChange={e => setUusYhik({...uusYhik, kirjeldus: e.target.value})} />
+            </div>
+            <div className="modal-row">
+              <div className="modal-section">
+                <label>Klass *</label>
+                <select className="modal-input" value={uusYhik.klass} onChange={e => setUusYhik({...uusYhik, klass: e.target.value})}>
+                  {[1,2,3,4,5,6,7,8,9,10,11,12].map(k => (
+                    <option key={k} value={`${k}. klass`}>{k}. klass</option>
+                  ))}
+                </select>
+              </div>
+              <div className="modal-section">
+                <label>Süvenemise tase *</label>
+                <select className="modal-input" value={uusYhik.suvenemistase} onChange={e => setUusYhik({...uusYhik, suvenemistase: e.target.value})}>
+                  {[1,2,3,4,5].map(t => (
+                    <option key={t} value={`Tase ${t}`}>Tase {t}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="modal-section">
+              <label>Märkmed</label>
+              <input className="modal-input" type="text" placeholder="Lisainformatsioon õppekava arendajatele..." value={uusYhik.markmed} onChange={e => setUusYhik({...uusYhik, markmed: e.target.value})} />
+            </div>
+            <div className="modal-footer">
+              <button className="ncp-btn" onClick={() => setLisaOpen(false)}>Tühista</button>
+              <button className="ncp-btn blue-btn" onClick={() => {
+                if (uusYhik.tyyyp === 'knowbit') {
+                  setKnowbits([...knowbits, uusYhik])
+                } else {
+                  setSkillbits([...skillbits, uusYhik])
+                }
+                setLisaOpen(false)
+                setUusYhik({ tyyyp: 'knowbit', pealkiri: '', kirjeldus: '', klass: '1. klass', suvenemistase: 'Tase 1', olulisus: 'Määramata', markmed: '' })
+              }}>Lisa</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
