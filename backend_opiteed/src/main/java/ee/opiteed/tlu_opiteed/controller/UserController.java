@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "https://opiteede-visualiseerimine-uvhe.onrender.com/")
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
