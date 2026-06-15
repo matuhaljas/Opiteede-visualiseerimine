@@ -32,6 +32,7 @@ public class KnowBitService {
                 .depthLevel(req.getDepthLevel())
                 .importance(req.getImportance())
                 .notes(req.getNotes())
+                .orderIndex(req.getOrderIndex())
                 .curriculumId(req.getCurriculumId())
                 .createdBy(createdBy)
                 .build());
@@ -61,7 +62,7 @@ public class KnowBitService {
     private KnowBitResponse toResponse(KnowBit kb) {
         return new KnowBitResponse(kb.getId(), kb.getTitle(), kb.getDescription(),
                 kb.getSubject(), kb.getGradeLevel(), kb.getDepthLevel(),
-                kb.getImportance(), kb.getNotes(), kb.getCurriculumId(),
-                kb.getCreatedBy(), kb.getCreatedAt());
+                kb.getImportance(), kb.getNotes(), kb.getOrderIndex(),
+                kb.getCurriculumId(), kb.getCreatedBy(), kb.getCreatedAt());
     }
 }

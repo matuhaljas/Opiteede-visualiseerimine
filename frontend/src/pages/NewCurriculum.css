@@ -1,10 +1,11 @@
 .ncp {
   background-color: #f4f5f7;
   color: #1a1a1a;
-  min-height: 100vh;
+  height: 100vh;
   font-family: "Segoe UI", Arial, sans-serif;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .ncp-header {
@@ -135,7 +136,9 @@
 
 .ncp-canvas {
   flex: 1;
-  min-height: 500px;
+  min-height: 0;       /* lets flex shrink below content size so children can fill it */
+  overflow: hidden;
+  padding-bottom: 44px; /* room for the fixed subject bar */
 }
 
 .ncp-sidebar {
@@ -148,11 +151,12 @@
 
 .ncp-footer-hint {
   position: fixed;
-  bottom: 16px;
+  bottom: 52px;
   left: 50%;
   transform: translateX(-50%);
   color: #9ca3af;
   font-size: 0.8rem;
+  pointer-events: none;
 }
 
 .blue {
@@ -269,4 +273,63 @@
   height: 500px;
   color: #444;
   font-size: 1rem;
+}
+
+/* Subject chip bar — fixed at the bottom of the viewport */
+.ncp-subjectbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.97);
+  border-top: 1px solid #dde2ea;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  z-index: 50;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.ncp-subjectbar-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+.ncp-subject-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f4f5f7;
+  border: 1px solid #dde2ea;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.ncp-subject-chip:hover {
+  background: #e8edf6;
+  border-color: #003082;
+}
+
+.ncp-subject-chip.active {
+  background: #f0f4ff;
+  border-color: #003082;
+  font-weight: 600;
+}
+
+.ncp-subject-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }

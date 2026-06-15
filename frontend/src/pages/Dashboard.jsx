@@ -5,15 +5,15 @@
 // - updatedAt kuupäev tuleb backendist
 import React, { useState, useEffect } from "react";
 import { auth } from "../firebaseConfig";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import './HomePage.css'
 
 const API = import.meta.env.VITE_BACK_URL ?? "http://localhost:8090";
 
 function Dashboard() {
-  const user = auth.currentUser;
   const navigate = useNavigate();
+  const [user, setUser] = useState(auth.currentUser);
   const [nimi, setNimi] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [oppekavad, setOppekavad] = useState([]);
@@ -26,8 +26,12 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    if (user?.uid) laeOppekavad(user.uid);
-  }, [user?.uid]);
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      if (u?.uid) laeOppekavad(u.uid);
+    });
+    return unsub;
+  }, []);
 
   const handleLogout = async () => {
     await signOut(auth);

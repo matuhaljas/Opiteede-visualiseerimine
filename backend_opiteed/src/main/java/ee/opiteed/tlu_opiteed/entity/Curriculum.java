@@ -20,6 +20,7 @@ public class Curriculum {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "curriculum_year")
     private String year;
 
     // Firebase UID omanikust (frontend saadab auth.currentUser.uid)

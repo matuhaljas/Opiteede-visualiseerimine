@@ -37,6 +37,8 @@ public class KnowBit {
     @Column(nullable = false)
     private Long curriculumId;
 
+    private Integer orderIndex;
+
     private String createdBy;
 
     private LocalDateTime createdAt;

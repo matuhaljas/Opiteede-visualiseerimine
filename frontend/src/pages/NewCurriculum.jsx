@@ -1,23 +1,32 @@
 // MUUDATUSED (11.06.26):
 // - Õppekava nimi/aasta laetakse backendist (GET /api/curricula/{id}), mitte localStorage'ist
 // - KnowBitid ja SkillBitid laetakse backendist (GET /api/knowbits?curriculumId, GET /api/skillbits?curriculumId)
-// - "Lisa ühik" nupп teeb päris POST /api/knowbits või /api/skillbits (ei salvesta ainult state'i)
+// - "Lisa ühik" nupp teeb päris POST /api/knowbits või /api/skillbits (ei salvesta ainult state'i)
 // - "Muuda → Salvesta" teeb PUT /api/curricula/{id} (nimi ja aasta salvestuvad DB-sse)
 // - Lisatud "Aine" väli "Lisa ühik" modaalis (subject väli — spiraalvaade grupeerib aine järgi)
 // - spiraalvaade saab pärisandmeid: knowbits+skillbits grupeeritakse aine kaupa → TestProjectPage2 data prop
-import { useState, useEffect, useMemo } from 'react'
+// - Ekspordi/Impordi nupud kasutavad backendi (Jackson serialisatsioon)
+// - Õpitee Graaf vaade lisatud (GraphView)
+// - Ainete filter-riba lehe allosas
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import './NewCurriculum.css'
 import TestProjectPage2 from './TestProjectPage2'
+import GraphView from './GraphView'
 
 const API = import.meta.env.VITE_BACK_URL ?? 'http://localhost:8090'
 
-// Värvipalett ainete eristamiseks spiraalvaates
 const SUBJECT_COLORS = [0x7c8aff, 0x4ecfb3, 0xff8a65, 0xf06292, 0xa5d06a, 0xffd54f, 0x9575cd, 0x4fc3f7]
+
+function hexCss(hex) {
+  return '#' + hex.toString(16).padStart(6, '0')
+}
 
 export default function NewCurriculum() {
   const { id } = useParams()
+  const importRef = useRef(null)
 
+  const [importPreview, setImportPreview] = useState(null)  // { knowbits, skillbits, subjects, file }
   const [shareOpen, setShareOpen] = useState(false)
   const [muudaOpen, setMuudaOpen] = useState(false)
   const [filtridOpen, setFiltridOpen] = useState(false)
@@ -32,6 +41,7 @@ export default function NewCurriculum() {
   const [knowbits, setKnowbits] = useState([])
   const [skillbits, setSkillbits] = useState([])
   const [otsing, setOtsing] = useState('')
+  const [selectedSubject, setSelectedSubject] = useState(null)
   const [uusYhik, setUusYhik] = useState({
     tyyyp: 'knowbit',
     pealkiri: '',
@@ -67,7 +77,19 @@ export default function NewCurriculum() {
     laeYhikud()
   }, [id])
 
+  // Kõik unikaalsed ained (järjestatud nagu nad esmakordselt esineda)
+  const allSubjects = useMemo(() => {
+    const seen = new Set()
+    const result = []
+    ;[...knowbits, ...skillbits].forEach(y => {
+      const s = y.subject || 'Määramata'
+      if (!seen.has(s)) { seen.add(s); result.push(s) }
+    })
+    return result
+  }, [knowbits, skillbits])
+
   // Grupeeri kõik ühikud aine järgi spiraalvaate jaoks
+  // selectedSubject dimib ainult Three.js-is — siin näitame kõiki aineid alati
   const spiraalData = useMemo(() => {
     const koik = [
       ...(filtrid.knowbits ? knowbits : []),
@@ -77,15 +99,20 @@ export default function NewCurriculum() {
     koik.forEach(y => {
       const aine = y.subject || 'Määramata'
       if (!grupid.has(aine)) grupid.set(aine, [])
-      grupid.get(aine).push(y.title)
+      grupid.get(aine).push({ title: y.title, gradeLevel: y.gradeLevel || 'Määramata', orderIndex: y.orderIndex ?? null })
     })
     const subjects = [...grupid.entries()].map(([name, topics], i) => ({
       name,
-      color: SUBJECT_COLORS[i % SUBJECT_COLORS.length],
-      topics
+      color: SUBJECT_COLORS[allSubjects.indexOf(name) % SUBJECT_COLORS.length],
+      topics: [...topics].sort((a, b) => {
+        if (a.orderIndex == null && b.orderIndex == null) return 0
+        if (a.orderIndex == null) return 1
+        if (b.orderIndex == null) return -1
+        return a.orderIndex - b.orderIndex
+      }),
     }))
     return subjects.length ? { subjects } : null
-  }, [knowbits, skillbits, filtrid])
+  }, [knowbits, skillbits, filtrid, allSubjects])
 
   const avaMuuda = () => {
     setTempNimi(nimi)
@@ -134,6 +161,83 @@ export default function NewCurriculum() {
     }
   }
 
+  const ekspordi = async () => {
+    if (!id) return
+    try {
+      const res = await fetch(`${API}/api/curricula/${id}/export`)
+      const data = await res.json()
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${nimi}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      alert('Eksport ebaõnnestus')
+    }
+  }
+
+  const onImportFileSelected = async e => {
+    const file = e.target.files[0]
+    if (!file || !id) return
+    importRef.current.value = ''
+
+    // Parse locally first to show a preview before uploading
+    try {
+      const text = await file.text()
+      const json = JSON.parse(text)
+
+      let knowbitCount = 0, skillbitCount = 0
+      const subjectSet = new Set()
+
+      if (json['@graph']) {
+        // Mirror the backend walk: @graph → Subject (hasTopic) → Topic (hasOutcome, hasSkillBit, hasSubtopic)
+        const countTopic = (topic) => {
+          const outcomes  = Array.isArray(topic.hasOutcome)  ? topic.hasOutcome  : []
+          const skills    = Array.isArray(topic.hasSkillBit) ? topic.hasSkillBit : []
+          outcomes.forEach(o => { if (o.text_et || o.text) knowbitCount++ })
+          skills.forEach(s => { if (s.name || s.text) skillbitCount++ })
+          const subs = Array.isArray(topic.hasSubtopic) ? topic.hasSubtopic : []
+          subs.forEach(countTopic)
+        }
+
+        json['@graph'].forEach(subject => {
+          const rawName = subject.name
+          const name = rawName?.['@value'] ?? rawName ?? null
+          if (name) subjectSet.add(name)
+          const topics = Array.isArray(subject.hasTopic) ? subject.hasTopic : []
+          topics.forEach(countTopic)
+        })
+      } else {
+        // Native export format
+        knowbitCount  = Array.isArray(json.knowbits)  ? json.knowbits.length  : 0
+        skillbitCount = Array.isArray(json.skillbits) ? json.skillbits.length : 0
+        ;[...(json.knowbits || []), ...(json.skillbits || [])].forEach(y => {
+          if (y.subject) subjectSet.add(y.subject)
+        })
+      }
+
+      setImportPreview({ knowbits: knowbitCount, skillbits: skillbitCount, subjects: [...subjectSet], file })
+    } catch {
+      alert('Faili lugemine ebaõnnestus — kontrolli, et fail on korrektne JSON või JSON-LD.')
+    }
+  }
+
+  const confirmImport = async () => {
+    if (!importPreview?.file || !id) return
+    const form = new FormData()
+    form.append('file', importPreview.file)
+    setImportPreview(null)
+    try {
+      const res = await fetch(`${API}/api/curricula/${id}/import`, { method: 'POST', body: form })
+      if (!res.ok) throw new Error('HTTP ' + res.status)
+      laeYhikud()
+    } catch {
+      alert('Import ebaõnnestus')
+    }
+  }
+
   return (
     <div className="ncp">
       <header className="ncp-header">
@@ -147,16 +251,9 @@ export default function NewCurriculum() {
         <div className="ncp-header-right">
           <span className="ncp-stat">● {knowbits.length} KnowBits</span>
           <span className="ncp-stat green">● {skillbits.length} SkillBits</span>
-          <button className="ncp-btn" onClick={() => {
-            const data = { nimi, aasta, knowbits, skillbits }
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-            const url = URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `${nimi}.json`
-            a.click()
-          }}>Ekspordi</button>
-          <button className="ncp-btn">Impordi</button>
+          <button className="ncp-btn" onClick={ekspordi}>Ekspordi</button>
+          <button className="ncp-btn" onClick={() => importRef.current?.click()}>Impordi</button>
+          <input ref={importRef} type="file" accept=".json,.jsonld" style={{ display: 'none' }} onChange={onImportFileSelected} />
           <button className="ncp-btn" onClick={() => setShareOpen(true)}>Jaga</button>
           <button className="ncp-btn" onClick={avaMuuda}>Muuda</button>
           <button className="ncp-btn blue-btn" onClick={() => setLisaOpen(true)}>+ Lisa ühik</button>
@@ -181,18 +278,50 @@ export default function NewCurriculum() {
         >Õpitee Graaf (Mikro)</button>
       </div>
 
-      <div className="ncp-canvas">
+      <div className="ncp-canvas" style={{ display: 'flex', flexDirection: 'column' }}>
         {aktiivsevahekaard === 'spiraal' && (
-          <div className="canvas-placeholder" style={{ width: "100%", height: "100vh" }}>
-            <TestProjectPage2 data={spiraalData} />
+          <div style={{ width: '100%', height: '100%' }}>
+            <TestProjectPage2 data={spiraalData} selectedSubject={selectedSubject} />
           </div>
         )}
         {aktiivsevahekaard === 'opitee' && (
-          <div className="canvas-placeholder">
-            <p>Õpitee Graaf tuleb siia</p>
-          </div>
+          <GraphView
+            knowbits={knowbits}
+            skillbits={skillbits}
+            filtrid={filtrid}
+            otsing={otsing}
+            selectedSubject={selectedSubject}
+          />
         )}
       </div>
+
+      {/* Ainete valik — lehe allosas */}
+      {allSubjects.length > 0 && (
+        <div className="ncp-subjectbar">
+          <span className="ncp-subjectbar-label">Ained:</span>
+          <div
+            className={`ncp-subject-chip${selectedSubject === null ? ' active' : ''}`}
+            onClick={() => setSelectedSubject(null)}
+          >
+            <span className="ncp-subject-dot" style={{ background: '#003082' }} />
+            <span>Kõik ained</span>
+          </div>
+          {allSubjects.map((subj, i) => {
+            const color = hexCss(SUBJECT_COLORS[i % SUBJECT_COLORS.length])
+            return (
+              <div
+                key={subj}
+                className={`ncp-subject-chip${selectedSubject === subj ? ' active' : ''}`}
+                style={selectedSubject === subj ? { color } : {}}
+                onClick={() => setSelectedSubject(selectedSubject === subj ? null : subj)}
+              >
+                <span className="ncp-subject-dot" style={{ background: color }} />
+                <span>{subj}</span>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       <div className="ncp-footer-hint">
         Suumi hiire rattaga • Kliki ühikule seoste nägemiseks
@@ -220,7 +349,7 @@ export default function NewCurriculum() {
               </div>
             </div>
             <div className="modal-section">
-              <strong>Lisa kolleegiud</strong>
+              <strong>Lisa kolleegid</strong>
               <div className="modal-invite">
                 <input type="text" placeholder="kollegi@email.ee" />
                 <select>
@@ -297,6 +426,57 @@ export default function NewCurriculum() {
         </div>
       )}
 
+      {importPreview && (
+        <div className="modal-overlay" onClick={() => setImportPreview(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <h2>Impordi kontroll</h2>
+                <p>Kontrolli andmed enne importimist</p>
+              </div>
+              <button className="modal-close" onClick={() => setImportPreview(null)}>✕</button>
+            </div>
+            <div className="modal-section">
+              <div style={{ display: 'flex', gap: '24px', marginBottom: '12px' }}>
+                <div style={{ textAlign: 'center', padding: '12px 20px', background: '#f0f4ff', borderRadius: '10px', minWidth: '100px' }}>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#003082' }}>{importPreview.knowbits}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '2px' }}>KnowBits</div>
+                </div>
+                <div style={{ textAlign: 'center', padding: '12px 20px', background: '#f0fff4', borderRadius: '10px', minWidth: '100px' }}>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#2e7d32' }}>{importPreview.skillbits}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '2px' }}>SkillBits</div>
+                </div>
+              </div>
+              {importPreview.subjects.length > 0 && (
+                <div>
+                  <strong style={{ fontSize: '0.85rem', color: '#4b5563' }}>Leitud ained ({importPreview.subjects.length}):</strong>
+                  <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '160px', overflowY: 'auto' }}>
+                    {importPreview.subjects.map(s => (
+                      <span key={s} style={{ background: '#f4f5f7', border: '1px solid #dde2ea', borderRadius: '12px', padding: '3px 10px', fontSize: '0.78rem', color: '#374151' }}>{s}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {importPreview.knowbits === 0 && importPreview.skillbits === 0 && (
+                <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', fontSize: '0.85rem' }}>
+                  ⚠️ Failist ei leitud ühtegi KnowBiti ega SkillBiti. Kontrolli faili formaati.
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="ncp-btn" onClick={() => setImportPreview(null)}>Tühista</button>
+              <button
+                className="ncp-btn blue-btn"
+                onClick={confirmImport}
+                disabled={importPreview.knowbits === 0 && importPreview.skillbits === 0}
+              >
+                Impordi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {lisaOpen && (
         <div className="modal-overlay" onClick={() => setLisaOpen(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
@@ -320,7 +500,10 @@ export default function NewCurriculum() {
             </div>
             <div className="modal-section">
               <label>Aine *</label>
-              <input className="modal-input" type="text" placeholder="nt. Matemaatika" value={uusYhik.aine} onChange={e => setUusYhik({...uusYhik, aine: e.target.value})} />
+              <select className="modal-input" value={uusYhik.aine} onChange={e => setUusYhik({...uusYhik, aine: e.target.value})}>
+                <option value="">-- Vali aine --</option>
+                {allSubjects.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
             </div>
             <div className="modal-section">
               <label>Kirjeldus</label>

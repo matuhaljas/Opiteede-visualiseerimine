@@ -11,5 +11,6 @@ public class KnowBitRequest {
     private String depthLevel;
     private String importance;
     private String notes;
+    private Integer orderIndex;
     private Long curriculumId;
 }
