@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "https://opiteede-visualiseerimine-uvhe.onrender.com/")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/curricula")
 @RequiredArgsConstructor
