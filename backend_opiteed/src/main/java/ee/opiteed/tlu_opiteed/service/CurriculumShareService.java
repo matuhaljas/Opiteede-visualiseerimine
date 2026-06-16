@@ -21,6 +21,7 @@ public class CurriculumShareService {
 
     private final CurriculumShareRepository shareRepository;
     private final CurriculumVisibilityRepository visibilityRepository;
+    private final EmailService emailService;
 
     public ShareInfoResponse getShareInfo(Long curriculumId) {
         boolean isPublic = visibilityRepository.findByCurriculumId(curriculumId)
@@ -41,6 +42,15 @@ public class CurriculumShareService {
                 .role(req.getRole())
                 .sharedBy(sharedBy)
                 .build());
+
+        emailService.saadaJagamisEmail(
+                req.getEmail(),
+                sharedBy != null ? sharedBy : "Keegi",
+                req.getCurriculumName() != null ? req.getCurriculumName() : "Õppekava",
+                curriculumId,
+                req.getRole() != null ? req.getRole().name() : ""
+        );
+
         return toInviteResponse(saved);
     }
 

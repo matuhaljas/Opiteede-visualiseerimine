@@ -7,4 +7,5 @@ import lombok.Data;
 public class ShareInviteRequest {
     private String email;
     private ShareRole role;
+    private String curriculumName;
 }

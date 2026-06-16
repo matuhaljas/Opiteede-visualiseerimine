@@ -43,6 +43,8 @@ export default function NewCurriculum() {
   const [skillbits, setSkillbits] = useState([])
   const [otsing, setOtsing] = useState('')
   const [selectedSubject, setSelectedSubject] = useState(null)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteRole, setInviteRole] = useState('VAATAJA')
   const [uusYhik, setUusYhik] = useState({
     tyyyp: 'knowbit',
     pealkiri: '',
@@ -199,6 +201,21 @@ export default function NewCurriculum() {
       setUusYhik({ tyyyp: 'knowbit', pealkiri: '', kirjeldus: '', aine: '', klass: '1. klass', suvenemistase: 'Tase 1', olulisus: 'Määramata', markmed: '' })
     } catch {
       alert('Ühiku lisamine ebaõnnestus')
+    }
+  }
+
+  const saadaKutse = async () => {
+    if (!inviteEmail.trim() || !id) return
+    try {
+      await fetch(`${API}/api/curricula/${id}/shares/invite`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: inviteEmail.trim(), role: inviteRole, curriculumName: nimi })
+      })
+      setInviteEmail('')
+      alert(`Kutse saadetud: ${inviteEmail}`)
+    } catch {
+      alert('Kutse saatmine ebaõnnestus')
     }
   }
 
@@ -392,13 +409,18 @@ export default function NewCurriculum() {
             <div className="modal-section">
               <strong>Lisa kolleegid</strong>
               <div className="modal-invite">
-                <input type="text" placeholder="kollegi@email.ee" />
-                <select>
-                  <option>Vaataja</option>
-                  <option>Panustaja</option>
-                  <option>Admin</option>
+                <input
+                  type="text"
+                  placeholder="kollegi@email.ee"
+                  value={inviteEmail}
+                  onChange={e => setInviteEmail(e.target.value)}
+                />
+                <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
+                  <option value="VAATAJA">Vaataja</option>
+                  <option value="PANUSTAJA">Panustaja</option>
+                  <option value="ADMIN">Admin</option>
                 </select>
-                <button className="ncp-btn">+ Lisa</button>
+                <button className="ncp-btn" onClick={saadaKutse}>+ Lisa</button>
               </div>
             </div>
             <div className="modal-rights">
