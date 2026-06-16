@@ -12,6 +12,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import './NewCurriculum.css'
 import TestProjectPage2 from './TestProjectPage2'
+import TestProjectPage3 from './TestProjectPage3'
 import GraphView from './GraphView'
 
 const API = import.meta.env.VITE_BACK_URL ?? 'http://localhost:8090'
@@ -58,11 +59,11 @@ export default function NewCurriculum() {
     fetch(`${API}/api/knowbits?curriculumId=${id}`)
       .then(res => res.json())
       .then(data => setKnowbits(data))
-      .catch(() => {})
+      .catch(() => { })
     fetch(`${API}/api/skillbits?curriculumId=${id}`)
       .then(res => res.json())
       .then(data => setSkillbits(data))
-      .catch(() => {})
+      .catch(() => { })
   }
 
   useEffect(() => {
@@ -73,7 +74,7 @@ export default function NewCurriculum() {
         if (data?.name) setNimi(data.name)
         if (data?.year) setAasta(data.year)
       })
-      .catch(() => {})
+      .catch(() => { })
     laeYhikud()
   }, [id])
 
@@ -81,10 +82,10 @@ export default function NewCurriculum() {
   const allSubjects = useMemo(() => {
     const seen = new Set()
     const result = []
-    ;[...knowbits, ...skillbits].forEach(y => {
-      const s = y.subject || 'Määramata'
-      if (!seen.has(s)) { seen.add(s); result.push(s) }
-    })
+      ;[...knowbits, ...skillbits].forEach(y => {
+        const s = y.subject || 'Määramata'
+        if (!seen.has(s)) { seen.add(s); result.push(s) }
+      })
     return result
   }, [knowbits, skillbits])
 
@@ -95,23 +96,63 @@ export default function NewCurriculum() {
       ...(filtrid.knowbits ? knowbits : []),
       ...(filtrid.skillbits ? skillbits : [])
     ]
+
+    // Grupeeri aine järgi, aine sees klass järgi
     const grupid = new Map()
     koik.forEach(y => {
       const aine = y.subject || 'Määramata'
-      if (!grupid.has(aine)) grupid.set(aine, [])
-      grupid.get(aine).push({ title: y.title, gradeLevel: y.gradeLevel || 'Määramata', orderIndex: y.orderIndex ?? null })
+      const klass = y.gradeLevel || 'Määramata'
+      if (!grupid.has(aine)) grupid.set(aine, new Map())
+      const klassiMap = grupid.get(aine)
+      if (!klassiMap.has(klass)) klassiMap.set(klass, [])
+      klassiMap.get(klass).push({
+        title: y.title,
+        gradeLevel: klass,
+        orderIndex: y.orderIndex ?? null
+      })
     })
-    const subjects = [...grupid.entries()].map(([name, topics], i) => ({
-      name,
-      color: SUBJECT_COLORS[allSubjects.indexOf(name) % SUBJECT_COLORS.length],
-      topics: [...topics].sort((a, b) => {
-        if (a.orderIndex == null && b.orderIndex == null) return 0
-        if (a.orderIndex == null) return 1
-        if (b.orderIndex == null) return -1
-        return a.orderIndex - b.orderIndex
-      }),
-    }))
-    return subjects.length ? { subjects } : null
+
+    const subjects = [...grupid.entries()].map(([name, klassiMap]) => {
+      // Sorteeri klassid
+      const sortedKlassid = [...klassiMap.entries()].sort((a, b) => {
+        const n = s => parseInt(s[0]) || 99
+        return n(a) - n(b)
+      })
+
+      // Iga klass = üks "ring" — topics on klassiti grupeeritud objektid
+      const topics = sortedKlassid.flatMap(([klass, items]) =>
+        items
+          .sort((a, b) => (a.orderIndex ?? 99999) - (b.orderIndex ?? 99999))
+          .map(t => t.title)
+      )
+
+      // klassipiirid indeksite kaupa (hiljem spiraalile ringide joonistamiseks)
+      const klassiPiirid = []
+      let offset = 0
+      sortedKlassid.forEach(([klass, items]) => {
+        klassiPiirid.push({ klass, start: offset, end: offset + items.length - 1 })
+        offset += items.length
+      })
+
+      return {
+        name,
+        color: SUBJECT_COLORS[allSubjects.indexOf(name) % SUBJECT_COLORS.length],
+        topics,
+        klassiPiirid,
+        topicDetails: sortedKlassid.flatMap(([_, items]) => items)
+      }
+    })
+
+    if (!subjects.length) return null
+
+    const details = {}
+    subjects.forEach(s => {
+      s.topicDetails.forEach(t => {
+        details[t.title] = { subject: s.name, gradeLevel: t.gradeLevel, outcomeCount: 1 }
+      })
+    })
+
+    return { subjects, details }
   }, [knowbits, skillbits, filtrid, allSubjects])
 
   const avaMuuda = () => {
@@ -194,8 +235,8 @@ export default function NewCurriculum() {
       if (json['@graph']) {
         // Mirror the backend walk: @graph → Subject (hasTopic) → Topic (hasOutcome, hasSkillBit, hasSubtopic)
         const countTopic = (topic) => {
-          const outcomes  = Array.isArray(topic.hasOutcome)  ? topic.hasOutcome  : []
-          const skills    = Array.isArray(topic.hasSkillBit) ? topic.hasSkillBit : []
+          const outcomes = Array.isArray(topic.hasOutcome) ? topic.hasOutcome : []
+          const skills = Array.isArray(topic.hasSkillBit) ? topic.hasSkillBit : []
           outcomes.forEach(o => { if (o.text_et || o.text) knowbitCount++ })
           skills.forEach(s => { if (s.name || s.text) skillbitCount++ })
           const subs = Array.isArray(topic.hasSubtopic) ? topic.hasSubtopic : []
@@ -211,11 +252,11 @@ export default function NewCurriculum() {
         })
       } else {
         // Native export format
-        knowbitCount  = Array.isArray(json.knowbits)  ? json.knowbits.length  : 0
+        knowbitCount = Array.isArray(json.knowbits) ? json.knowbits.length : 0
         skillbitCount = Array.isArray(json.skillbits) ? json.skillbits.length : 0
-        ;[...(json.knowbits || []), ...(json.skillbits || [])].forEach(y => {
-          if (y.subject) subjectSet.add(y.subject)
-        })
+          ;[...(json.knowbits || []), ...(json.skillbits || [])].forEach(y => {
+            if (y.subject) subjectSet.add(y.subject)
+          })
       }
 
       setImportPreview({ knowbits: knowbitCount, skillbits: skillbitCount, subjects: [...subjectSet], file })
@@ -281,7 +322,7 @@ export default function NewCurriculum() {
       <div className="ncp-canvas" style={{ display: 'flex', flexDirection: 'column' }}>
         {aktiivsevahekaard === 'spiraal' && (
           <div style={{ width: '100%', height: '100%' }}>
-            <TestProjectPage2 data={spiraalData} selectedSubject={selectedSubject} />
+            <TestProjectPage3 data={{ subjects: spiraalData?.subjects }} details={spiraalData?.details} />
           </div>
         )}
         {aktiivsevahekaard === 'opitee' && (
@@ -407,15 +448,15 @@ export default function NewCurriculum() {
             </div>
             <div className="modal-section">
               <div className="filter-row">
-                <input type="checkbox" checked={filtrid.knowbits} onChange={e => setFiltrid({...filtrid, knowbits: e.target.checked})} />
+                <input type="checkbox" checked={filtrid.knowbits} onChange={e => setFiltrid({ ...filtrid, knowbits: e.target.checked })} />
                 <span className="blue">KnowBits</span> — teadmisühikud
               </div>
               <div className="filter-row">
-                <input type="checkbox" checked={filtrid.skillbits} onChange={e => setFiltrid({...filtrid, skillbits: e.target.checked})} />
+                <input type="checkbox" checked={filtrid.skillbits} onChange={e => setFiltrid({ ...filtrid, skillbits: e.target.checked })} />
                 <span className="blue">SkillBits</span> — oskusühikud
               </div>
               <div className="filter-row">
-                <input type="checkbox" checked={filtrid.seosed} onChange={e => setFiltrid({...filtrid, seosed: e.target.checked})} />
+                <input type="checkbox" checked={filtrid.seosed} onChange={e => setFiltrid({ ...filtrid, seosed: e.target.checked })} />
                 <span>Seosed</span> — ühikutevahelised seosed
               </div>
             </div>
@@ -489,39 +530,39 @@ export default function NewCurriculum() {
             </div>
             <div className="modal-section">
               <label>Ühiku tüüp</label>
-              <select className="modal-input" value={uusYhik.tyyyp} onChange={e => setUusYhik({...uusYhik, tyyyp: e.target.value})}>
+              <select className="modal-input" value={uusYhik.tyyyp} onChange={e => setUusYhik({ ...uusYhik, tyyyp: e.target.value })}>
                 <option value="knowbit">KnowBit (Teadmus)</option>
                 <option value="skillbit">SkillBit (Oskus)</option>
               </select>
             </div>
             <div className="modal-section">
               <label>Pealkiri *</label>
-              <input className="modal-input" type="text" placeholder="nt. Rütmimustrid" value={uusYhik.pealkiri} onChange={e => setUusYhik({...uusYhik, pealkiri: e.target.value})} />
+              <input className="modal-input" type="text" placeholder="nt. Rütmimustrid" value={uusYhik.pealkiri} onChange={e => setUusYhik({ ...uusYhik, pealkiri: e.target.value })} />
             </div>
             <div className="modal-section">
               <label>Aine *</label>
-              <select className="modal-input" value={uusYhik.aine} onChange={e => setUusYhik({...uusYhik, aine: e.target.value})}>
+              <select className="modal-input" value={uusYhik.aine} onChange={e => setUusYhik({ ...uusYhik, aine: e.target.value })}>
                 <option value="">-- Vali aine --</option>
                 {allSubjects.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div className="modal-section">
               <label>Kirjeldus</label>
-              <input className="modal-input" type="text" placeholder="Lühike kirjeldus ühiku kohta" value={uusYhik.kirjeldus} onChange={e => setUusYhik({...uusYhik, kirjeldus: e.target.value})} />
+              <input className="modal-input" type="text" placeholder="Lühike kirjeldus ühiku kohta" value={uusYhik.kirjeldus} onChange={e => setUusYhik({ ...uusYhik, kirjeldus: e.target.value })} />
             </div>
             <div className="modal-row">
               <div className="modal-section">
                 <label>Klass *</label>
-                <select className="modal-input" value={uusYhik.klass} onChange={e => setUusYhik({...uusYhik, klass: e.target.value})}>
-                  {[1,2,3,4,5,6,7,8,9,10,11,12].map(k => (
+                <select className="modal-input" value={uusYhik.klass} onChange={e => setUusYhik({ ...uusYhik, klass: e.target.value })}>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(k => (
                     <option key={k} value={`${k}. klass`}>{k}. klass</option>
                   ))}
                 </select>
               </div>
               <div className="modal-section">
                 <label>Süvenemise tase *</label>
-                <select className="modal-input" value={uusYhik.suvenemistase} onChange={e => setUusYhik({...uusYhik, suvenemistase: e.target.value})}>
-                  {[1,2,3,4,5].map(t => (
+                <select className="modal-input" value={uusYhik.suvenemistase} onChange={e => setUusYhik({ ...uusYhik, suvenemistase: e.target.value })}>
+                  {[1, 2, 3, 4, 5].map(t => (
                     <option key={t} value={`Tase ${t}`}>Tase {t}</option>
                   ))}
                 </select>
@@ -529,7 +570,7 @@ export default function NewCurriculum() {
             </div>
             <div className="modal-section">
               <label>Märkmed</label>
-              <input className="modal-input" type="text" placeholder="Lisainformatsioon õppekava arendajatele..." value={uusYhik.markmed} onChange={e => setUusYhik({...uusYhik, markmed: e.target.value})} />
+              <input className="modal-input" type="text" placeholder="Lisainformatsioon õppekava arendajatele..." value={uusYhik.markmed} onChange={e => setUusYhik({ ...uusYhik, markmed: e.target.value })} />
             </div>
             <div className="modal-footer">
               <button className="ncp-btn" onClick={() => setLisaOpen(false)}>Tühista</button>

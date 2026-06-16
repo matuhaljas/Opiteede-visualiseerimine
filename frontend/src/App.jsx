@@ -6,6 +6,7 @@ import './App.css'
 import ProjectPage from "./pages/ProjectPage";
 import TestProjectPage from "./pages/TestProjectPage";
 import TestProjectPage2 from "./pages/TestProjectPage2";
+import TestProjectPage3 from "./pages/TestProjectPage3";
 import Dashboard from './pages/Dashboard'
 import { auth } from './firebaseConfig'
 import { onAuthStateChanged } from 'firebase/auth'
@@ -32,6 +33,7 @@ function App() {
       <Route path="/project" element={<ProjectPage />} />
       <Route path="/test-project" element={<TestProjectPage />} />
       <Route path="/test-project2" element={<TestProjectPage2 />} />
+      <Route path="/test-project3" element={<TestProjectPage3 />} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/new/:id" element={<ProtectedRoute><NewCurriculum /></ProtectedRoute>} />
 
