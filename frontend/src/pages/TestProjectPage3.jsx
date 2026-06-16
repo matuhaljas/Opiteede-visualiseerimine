@@ -105,7 +105,7 @@ function TestProjectPage2({ data, details }) {
 
                 const totalTopics = subj.topics.length;
 
-                const orbitRadius = 1;
+                const orbitRadius = 2;
 
                 // generate dense points along the full tube length for this subject
                 for (let i = 0; i <= Math.max((totalTopics - 1) * interpolationSteps, 0); i++) {
