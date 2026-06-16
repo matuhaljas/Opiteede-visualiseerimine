@@ -56,6 +56,15 @@
   color: #2e7d32;
 }
 
+.ncp-stat.percent {
+  color: #003082;
+  font-weight: 600;
+}
+
+.ncp-stat.number {
+  color: #7d7d25;
+}
+
 .ncp-btn {
   background: #fff;
   border: 1px solid #003082;
@@ -151,9 +160,8 @@
 
 .ncp-footer-hint {
   position: fixed;
-  bottom: 52px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 60px;
+  left: 75%;
   color: #9ca3af;
   font-size: 0.8rem;
   pointer-events: none;

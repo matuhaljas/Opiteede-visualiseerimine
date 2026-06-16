@@ -413,10 +413,6 @@ function TestProjectPage2({ data, selectedSubject }) {
           <div id="tt-name"     style={{ fontSize: '13px', color: '#e8e8f0', fontFamily: 'sans-serif', fontWeight: 500, lineHeight: 1.4 }} />
           <div id="tt-outcomes" style={{ display: 'none' }} />
         </div>
-
-        <div style={{ position: 'absolute', bottom: '12px', right: '12px', fontSize: '11px', color: 'rgba(0,0,0,0.3)', fontFamily: 'sans-serif', pointerEvents: 'none' }}>
-          vasak klikk: pööra · parem klikk: liiguta · rull: suumi
-        </div>
       </div>
     </div>
   )

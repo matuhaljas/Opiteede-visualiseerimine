@@ -251,6 +251,20 @@ export default function NewCurriculum() {
         <div className="ncp-header-right">
           <span className="ncp-stat">● {knowbits.length} KnowBits</span>
           <span className="ncp-stat green">● {skillbits.length} SkillBits</span>
+          <span className="ncp-stat percent">● {(() => {
+            const total = knowbits.length
+            if (total === 0) return 0
+            if (!selectedSubject) return Math.round(knowbits.length / (knowbits.length + skillbits.length) * 100)
+            const inSubject = knowbits.filter(k => (k.subject) === selectedSubject).length
+            return Math.round(inSubject / total * 100)
+          })()}% of Knowbits</span>
+          <span className="ncp-stat number">● {(() => {
+            const total = knowbits.length
+            if (total === 0) return 0
+            if (!selectedSubject) return knowbits.length
+            const inSubject = knowbits.filter(k => (k.subject) === selectedSubject).length
+            return inSubject
+          })()} Knowbits in the subject</span>
           <button className="ncp-btn" onClick={ekspordi}>Ekspordi</button>
           <button className="ncp-btn" onClick={() => importRef.current?.click()}>Impordi</button>
           <input ref={importRef} type="file" accept=".json,.jsonld" style={{ display: 'none' }} onChange={onImportFileSelected} />
