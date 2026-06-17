@@ -212,15 +212,20 @@ export default function NewCurriculum() {
   const saadaKutse = async () => {
     if (!inviteEmail.trim() || !id) return
     try {
-      await fetch(`${API}/api/curricula/${id}/shares/invite`, {
+      const res = await fetch(`${API}/api/curricula/${id}/shares/invite`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: inviteEmail.trim(), role: inviteRole, curriculumName: nimi })
       })
+      if (!res.ok) {
+        const text = await res.text()
+        alert(`Kutse saatmine ebaõnnestus (${res.status}): ${text}`)
+        return
+      }
       setInviteEmail('')
       alert(`Kutse saadetud: ${inviteEmail}`)
-    } catch {
-      alert('Kutse saatmine ebaõnnestus')
+    } catch (e) {
+      alert(`Kutse saatmine ebaõnnestus: ${e.message}`)
     }
   }
 
