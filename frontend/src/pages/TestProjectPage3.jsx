@@ -203,7 +203,7 @@ function TestProjectPage2({ data, details }) {
             let isDragging = false, prevX = 0, prevY = 0;
             let isPanning = false;
             let panY = 0, targetPanY = 0;
-            let targetRotX = 3.14, targetRotY = 10;
+            let targetRotX = 3.14, targetRotY = 0;
             let rotX = 3.14, rotY = 0;
             let zoom = 24;
             const raycaster = new THREE.Raycaster();
@@ -293,7 +293,7 @@ function TestProjectPage2({ data, details }) {
                 rotX += (targetRotX - rotX) * 0.07;
                 rotY += (targetRotY - rotY) * 0.07;
                 pivot.rotation.x = rotX;
-                pivot.rotation.y = rotY;
+                pivot.rotation.y = rotY * Date.now * 0.005;
 
                 panY += (targetPanY - panY) * 0.07;
                 camera.position.z = zoom;

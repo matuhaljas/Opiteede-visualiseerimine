@@ -36,7 +36,7 @@ public class EmailService {
             );
             mailSender.send(message);
         } catch (Exception e) {
-            log.error("Emaili saatmine ebaõnnestus aadressile {}", toEmail, e);
+            log.error("Emaili saatmine ebaõnnestus aadressile {}: {}", toEmail, e.getMessage());
         }
     }
 }
