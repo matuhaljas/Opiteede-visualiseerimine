@@ -6,11 +6,11 @@ import ee.opiteed.tlu_opiteed.service.CurriculumService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/curricula")
 @RequiredArgsConstructor
@@ -19,7 +19,8 @@ public class CurriculumController {
     private final CurriculumService curriculumService;
 
     @GetMapping
-    public ResponseEntity<List<CurriculumResponse>> getByOwner(@RequestParam String ownerUid) {
+    public ResponseEntity<List<CurriculumResponse>> getByOwner(Authentication auth) {
+        String ownerUid = (String) auth.getCredentials();
         return ResponseEntity.ok(curriculumService.getByOwner(ownerUid));
     }
 
@@ -29,8 +30,9 @@ public class CurriculumController {
     }
 
     @PostMapping
-    public ResponseEntity<CurriculumResponse> create(@RequestBody CurriculumRequest req) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(curriculumService.create(req));
+    public ResponseEntity<CurriculumResponse> create(@RequestBody CurriculumRequest req, Authentication auth) {
+        String ownerUid = (String) auth.getCredentials();
+        return ResponseEntity.status(HttpStatus.CREATED).body(curriculumService.create(req, ownerUid));
     }
 
     @PutMapping("/{id}")

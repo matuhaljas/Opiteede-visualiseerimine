@@ -54,7 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                email, null,
+                email, user.getFirebaseUid(),
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
