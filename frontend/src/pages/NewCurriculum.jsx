@@ -150,7 +150,12 @@ export default function NewCurriculum() {
     const details = {}
     subjects.forEach(s => {
       s.topicDetails.forEach(t => {
-        details[t.title] = { subject: s.name, gradeLevel: t.gradeLevel, outcomeCount: 1 }
+    details[t.title] = { 
+    subject: s.name, 
+    gradeLevel: t.gradeLevel, 
+    outcomeCount: 1,
+    description: t.description || ''
+}
       })
     })
 

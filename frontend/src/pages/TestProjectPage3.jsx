@@ -148,12 +148,13 @@ function TestProjectPage2({ data, details }) {
                     const mesh = new THREE.Mesh(geo, mat);
                     mesh.position.copy(finalPos);
 
-                    mesh.userData = {
-                        subject: subj.name,
-                        name: topicName,
-                        outcomes: DETAILS[topicName]?.outcomeCount ?? 0,
-                        knowbits: DETAILS[topicName]?.knowbits ?? [],
-                        color: subj.color
+                   mesh.userData = {
+                    subject: subj.name,
+                    name: topicName,
+                    outcomes: DETAILS[topicName]?.outcomeCount ?? 0,
+                    description: DETAILS[topicName]?.description || '',
+                    gradeLevel: DETAILS[topicName]?.gradeLevel || '',
+                    color: subj.color
                     }
 
                     pivot.add(mesh);
@@ -272,6 +273,8 @@ function TestProjectPage2({ data, details }) {
                     document.getElementById('panel-subject').textContent = n.userData.subject;
                     document.getElementById('panel-name').textContent = n.userData.name;
                     document.getElementById('panel-outcomes').textContent = n.userData.outcomes + ' õpitulemust seotud selle teemaga.';
+                    document.getElementById('panel-grade').textContent = n.userData.gradeLevel;
+                    document.getElementById('panel-desc').textContent = n.userData.description;
                     panel.style.transform = 'translateX(0)';
                 }
             }, { signal });
@@ -311,21 +314,27 @@ function TestProjectPage2({ data, details }) {
     }, [data, details]);
 
     return (
-        <div style={{ width: "100%", height: "100%" }}>
-            <div ref={contRef} style={{ position: "relative", width: "100%", height: "100%" }}>
-                <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
-                <div id="tooltip" style={{ position: "absolute", top: "0", left: "0", pointerEvents: "none", opacity: "0", transition: "opacity 0.15s", background: "rgba(10,10,20,0.88)", border: "0.5px solid rgba(255,255,255,0.15)", borderRadius: "8px", padding: "10px 14px", maxWidth: "220px" }}>
-                    <div id="tt-subject" style={{ fontSize: "11px", color: "#7c8aff", fontFamily: "sans-serif", marginBottom: "2px" }}></div>
-                    <div id="tt-name" style={{ fontSize: "13px", color: "#e8e8f0", fontFamily: "sans-serif", fontWeight: "500", lineHeight: "1.4" }}></div>
-                    <div id="tt-outcomes" style={{ fontSize: "11px", color: "#888", fontFamily: "sans-serif", marginTop: "4px" }}></div>
-                </div>
-
-                <div id="legend" style={{ position: "absolute", top: "12px", left: "12px", display: "flex", flexWrap: "wrap", gap: "6px" }}></div>
-
-                <div style={{ position: "absolute", bottom: "12px", right: "12px", fontSize: "11px", color: "rgba(255,255,255,0.3)", fontFamily: "sans-serif" }}>vasak klikk: pööra · parem klikk: liiguta · rull: suumi</div>
+    <div style={{ width: "100%", height: "100%", position: "relative", display: "flex" }}>
+        <div ref={contRef} style={{ position: "relative", flex: 1, height: "100%" }}>
+            <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
+            <div id="tooltip" style={{ position: "absolute", top: "0", left: "0", pointerEvents: "none", opacity: "0", transition: "opacity 0.15s", background: "rgba(10,10,20,0.88)", border: "0.5px solid rgba(255,255,255,0.15)", borderRadius: "8px", padding: "10px 14px", maxWidth: "220px" }}>
+                <div id="tt-subject" style={{ fontSize: "11px", color: "#7c8aff", fontFamily: "sans-serif", marginBottom: "2px" }}></div>
+                <div id="tt-name" style={{ fontSize: "13px", color: "#e8e8f0", fontFamily: "sans-serif", fontWeight: "500", lineHeight: "1.4" }}></div>
+                <div id="tt-outcomes" style={{ fontSize: "11px", color: "#888", fontFamily: "sans-serif", marginTop: "4px" }}></div>
             </div>
+            <div id="legend" style={{ position: "absolute", top: "12px", left: "12px", display: "flex", flexWrap: "wrap", gap: "6px" }}></div>
+            <div style={{ position: "absolute", bottom: "12px", right: "12px", fontSize: "11px", color: "rgba(255,255,255,0.3)", fontFamily: "sans-serif" }}>vasak klikk: pööra · parem klikk: liiguta · rull: suumi</div>
         </div>
-    )
+        <div id="info-panel" style={{ width: "300px", height: "100%", background: "#fff", borderLeft: "1px solid #e5e7eb", padding: "24px 20px", overflowY: "auto", transform: "translateX(100%)", transition: "transform 0.3s ease", position: "absolute", right: 0, top: 0, zIndex: 10, boxSizing: "border-box" }}>
+            <button onClick={() => window.closePanel()} style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", fontSize: "18px", cursor: "pointer", color: "#6b7280" }}>✕</button>
+            <div id="panel-subject" style={{ fontSize: "12px", color: "#7c8aff", fontFamily: "sans-serif", marginBottom: "6px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em" }}></div>
+            <div id="panel-name" style={{ fontSize: "18px", color: "#111827", fontFamily: "sans-serif", fontWeight: "700", marginBottom: "12px", lineHeight: "1.4" }}></div>
+            <div id="panel-grade" style={{ fontSize: "12px", color: "#9ca3af", fontFamily: "sans-serif", marginBottom: "12px" }}></div>
+            <div id="panel-outcomes" style={{ fontSize: "13px", color: "#6b7280", fontFamily: "sans-serif", marginBottom: "12px" }}></div>
+            <div id="panel-desc" style={{ fontSize: "13px", color: "#374151", fontFamily: "sans-serif", lineHeight: "1.6" }}></div>
+        </div>
+    </div>
+)
 }
 
 export default TestProjectPage2

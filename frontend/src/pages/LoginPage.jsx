@@ -27,7 +27,6 @@ function LoginPage() {
     <div className="home">
       <header className="home-header">
         <div className="home-logo">
-          <span className="logo-icon"></span>
           <div>
             <h1>Ainekavade Visualiseerimine</h1>
           </div>
