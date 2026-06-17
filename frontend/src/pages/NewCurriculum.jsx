@@ -14,8 +14,7 @@ import './NewCurriculum.css'
 import TestProjectPage2 from './TestProjectPage2'
 import TestProjectPage3 from './TestProjectPage3'
 import GraphView from './GraphView'
-
-const API = import.meta.env.VITE_BACK_URL ?? 'http://localhost:8090'
+import { apiFetch } from '../api'
 
 const SUBJECT_COLORS = [0x7c8aff, 0x4ecfb3, 0xff8a65, 0xf06292, 0xa5d06a, 0xffd54f, 0x9575cd, 0x4fc3f7]
 
@@ -58,11 +57,11 @@ export default function NewCurriculum() {
 
   const laeYhikud = () => {
     if (!id) return
-    fetch(`${API}/api/knowbits?curriculumId=${id}`)
+    apiFetch(`/api/knowbits?curriculumId=${id}`)
       .then(res => res.json())
       .then(data => setKnowbits(data))
       .catch(() => { })
-    fetch(`${API}/api/skillbits?curriculumId=${id}`)
+    apiFetch(`/api/skillbits?curriculumId=${id}`)
       .then(res => res.json())
       .then(data => setSkillbits(data))
       .catch(() => { })
@@ -70,7 +69,7 @@ export default function NewCurriculum() {
 
   useEffect(() => {
     if (!id) return
-    fetch(`${API}/api/curricula/${id}`)
+    apiFetch(`/api/curricula/${id}`)
       .then(res => res.json())
       .then(data => {
         if (data?.name) setNimi(data.name)
@@ -174,9 +173,8 @@ export default function NewCurriculum() {
     setMuudaOpen(false)
     if (!id) return
     try {
-      await fetch(`${API}/api/curricula/${id}`, {
+      await apiFetch(`/api/curricula/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: tempNimi, year: tempAasta })
       })
     } catch { /* võrgu viga ignoreeritakse */ }
@@ -196,9 +194,8 @@ export default function NewCurriculum() {
       curriculumId: Number(id)
     }
     try {
-      await fetch(`${API}/api/${endpoint}`, {
+      await apiFetch(`/api/${endpoint}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
       laeYhikud()
@@ -212,9 +209,8 @@ export default function NewCurriculum() {
   const saadaKutse = async () => {
     if (!inviteEmail.trim() || !id) return
     try {
-      const res = await fetch(`${API}/api/curricula/${id}/shares/invite`, {
+      const res = await apiFetch(`/api/curricula/${id}/shares/invite`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: inviteEmail.trim(), role: inviteRole, curriculumName: nimi })
       })
       if (!res.ok) {
@@ -232,7 +228,7 @@ export default function NewCurriculum() {
   const ekspordi = async () => {
     if (!id) return
     try {
-      const res = await fetch(`${API}/api/curricula/${id}/export`)
+      const res = await apiFetch(`/api/curricula/${id}/export`)
       const data = await res.json()
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
@@ -298,7 +294,7 @@ export default function NewCurriculum() {
     form.append('file', importPreview.file)
     setImportPreview(null)
     try {
-      const res = await fetch(`${API}/api/curricula/${id}/import`, { method: 'POST', body: form })
+      const res = await apiFetch(`/api/curricula/${id}/import`, { method: 'POST', body: form, multipart: true })
       if (!res.ok) throw new Error('HTTP ' + res.status)
       laeYhikud()
     } catch {

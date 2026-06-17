@@ -1,3 +1,7 @@
 .vscode/
 claude.md
 *.pdf
+
+# Secrets – ära lisa kunagi versioonihaldusse
+backend_opiteed/src/main/resources/application-prod.properties
+backend_opiteed/src/main/resources/application-dev.properties

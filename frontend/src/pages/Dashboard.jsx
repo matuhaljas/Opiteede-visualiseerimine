@@ -7,9 +7,8 @@ import React, { useState, useEffect } from "react";
 import { auth } from "../firebaseConfig";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../api";
 import './HomePage.css'
-
-const API = import.meta.env.VITE_BACK_URL ?? "http://localhost:8090";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -18,8 +17,8 @@ function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [oppekavad, setOppekavad] = useState([]);
 
-  const laeOppekavad = (uid) => {
-    fetch(`${API}/api/curricula?ownerUid=${uid}`)
+  const laeOppekavad = () => {
+    apiFetch('/api/curricula')
       .then((res) => res.json())
       .then((data) => setOppekavad(data))
       .catch(() => {});
@@ -28,23 +27,23 @@ function Dashboard() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      if (u?.uid) laeOppekavad(u.uid);
+      if (u) laeOppekavad();
     });
     return unsub;
   }, []);
 
   const handleLogout = async () => {
     await signOut(auth);
+    localStorage.removeItem('jwt');
     navigate("/");
   };
 
   const handleLoo = async () => {
-    if (!nimi.trim() || !user?.uid) return;
+    if (!nimi.trim()) return;
     try {
-      const res = await fetch(`${API}/api/curricula`, {
+      const res = await apiFetch('/api/curricula', {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: nimi.trim(), year: "2025/2026", ownerUid: user.uid }),
+        body: JSON.stringify({ name: nimi.trim(), year: "2025/2026" }),
       });
       const uus = await res.json();
       setModalOpen(false);
