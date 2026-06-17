@@ -44,7 +44,7 @@ export default function NewCurriculum() {
   const [otsing, setOtsing] = useState('')
   const [selectedSubject, setSelectedSubject] = useState(null)
   const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteRole, setInviteRole] = useState('VAATAJA')
+  const [inviteRole, setInviteRole] = useState('VIEWER')
   const [uusYhik, setUusYhik] = useState({
     tyyyp: 'knowbit',
     pealkiri: '',
@@ -426,8 +426,8 @@ export default function NewCurriculum() {
                   onChange={e => setInviteEmail(e.target.value)}
                 />
                 <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
-                  <option value="VAATAJA">Vaataja</option>
-                  <option value="PANUSTAJA">Panustaja</option>
+                  <option value="VIEWER">Vaataja</option>
+                  <option value="CONTRIBUTOR">Panustaja</option>
                   <option value="ADMIN">Admin</option>
                 </select>
                 <button className="ncp-btn" onClick={saadaKutse}>+ Lisa</button>
