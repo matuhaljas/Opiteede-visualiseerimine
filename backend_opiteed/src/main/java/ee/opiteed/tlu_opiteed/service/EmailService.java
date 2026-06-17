@@ -35,6 +35,7 @@ public class EmailService {
                 "Tervitades,\nÕpiteede Visualiseerimise tiim"
             );
             mailSender.send(message);
+            log.info("Email saadetud edukalt aadressile: {}", toEmail);
         } catch (Exception e) {
             log.error("Emaili saatmine ebaõnnestus aadressile {}: {}", toEmail, e.getMessage());
         }
