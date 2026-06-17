@@ -1,7 +1,7 @@
 package ee.opiteed.tlu_opiteed.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,18 +9,22 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    @Autowired(required = false)
+    private JavaMailSender mailSender;
 
-    @Value("${app.frontend-url}")
+    @Value("${app.frontend-url:https://opiteede-visualiseerimine-uvhe.onrender.com}")
     private String frontendUrl;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:}")
     private String fromEmail;
 
     public void saadaJagamisEmail(String toEmail, String sharedBy, String curriculumName, Long curriculumId, String role) {
+        if (mailSender == null) {
+            log.warn("Email ei ole konfigureeritud — kutse salvestati aga emaili ei saadetud");
+            return;
+        }
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
