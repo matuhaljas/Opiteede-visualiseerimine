@@ -22,6 +22,10 @@ function ProtectedRoute({ children }) {
 
   if (user === undefined) return null;
   if (!user) return <Navigate to="/" replace />;
+  // Firebase sessioon võib kehtida ka siis, kui backendi JWT puudub (nt cold-start
+  // ajal jäi salvestamata) või aegus. Ilma JWT-ta on kaitstud lehed kasutud (403),
+  // seega suuna kasutaja uuesti sisse logima.
+  if (!localStorage.getItem('jwt')) return <Navigate to="/login" replace />;
   return children;
 }
 

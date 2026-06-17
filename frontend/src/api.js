@@ -17,14 +17,11 @@ export async function apiFetch(path, options = {}) {
     ...rest,
   });
 
-  // Kui meil oli JWT, aga backend vastab 401/403, on token aegunud või kehtetu
-  // (nt 24h möödas või sisselogimisel jäi token salvestamata). Puhasta vana token
-  // ja suuna kasutaja uuesti sisse logima, et saada värske token.
+  // Kui meil oli JWT, aga backend vastab 401/403, on token aegunud või kehtetu.
+  // Puhasta see, et ProtectedRoute ja kutsujad suunaksid kasutaja uuesti sisse logima.
+  // (Navigeerimist siin ei tee — see on andmekiht; UX-i otsustavad kutsujad.)
   if (hadToken && (res.status === 401 || res.status === 403)) {
     localStorage.removeItem('jwt');
-    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-      window.location.assign('/login');
-    }
   }
 
   return res;

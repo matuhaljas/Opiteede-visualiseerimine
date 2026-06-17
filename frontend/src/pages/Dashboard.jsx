@@ -46,9 +46,13 @@ function Dashboard() {
         body: JSON.stringify({ name: nimi.trim(), year: "2025/2026" }),
       });
       if (!res.ok) {
-        // 401/403 (aegunud sessioon) käsitleb apiFetch — suunab login'i.
-        // Muud vead näitame siin koos staatusega, mitte üldise teatega.
-        if (res.status !== 401 && res.status !== 403) {
+        if (res.status === 401 || res.status === 403) {
+          // Sessioon aegunud või puudub (JWT-d pole) — anna tagasisidet ja
+          // suuna uuesti sisse logima, et saada värske token.
+          alert("Sessioon on aegunud või puudub. Palun logi uuesti sisse.");
+          localStorage.removeItem('jwt');
+          navigate('/login');
+        } else {
           alert(`Õppekava loomine ebaõnnestus (HTTP ${res.status}).`);
         }
         return;
