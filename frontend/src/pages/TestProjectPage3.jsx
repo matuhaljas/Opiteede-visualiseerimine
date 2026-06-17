@@ -293,7 +293,7 @@ function TestProjectPage2({ data, details }) {
                 rotX += (targetRotX - rotX) * 0.07;
                 rotY += (targetRotY - rotY) * 0.07;
                 pivot.rotation.x = rotX;
-                pivot.rotation.y = rotY; // * Date.now * 0.005;
+                pivot.rotation.y = rotY;
 
                 panY += (targetPanY - panY) * 0.07;
                 camera.position.z = zoom;
