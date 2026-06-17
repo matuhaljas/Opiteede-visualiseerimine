@@ -1,5 +1,5 @@
 import React from "react";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, signOut } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, googleProvider, db } from "../firebaseConfig";
 import './HomePage.css'
@@ -21,24 +21,43 @@ function LoginPage() {
         lastLogin: new Date()
       });
 
-      try {
-        const res = await fetch(`${API}/api/auth/firebase`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            firebaseUid: user.uid,
-            email: user.email,
-            name: user.displayName
-          })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          localStorage.setItem('jwt', data.token);
+      const payload = JSON.stringify({
+        firebaseUid: user.uid,
+        email: user.email,
+        name: user.displayName
+      });
+
+      // Render free-tier backend võib olla "unest ärkamas" (cold start, ~50s).
+      // Proovi paar korda, et esimene aegunud päring sisselogimist ei katkestaks.
+      let token = null;
+      for (let attempt = 0; attempt < 2 && !token; attempt++) {
+        try {
+          const res = await fetch(`${API}/api/auth/firebase`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload
+          });
+          if (res.ok) {
+            const data = await res.json();
+            token = data.token;
+          }
+        } catch {
+          // võrguviga / cold start — proovime uuesti
         }
-      } catch {
-        // backend kättesaamatu — jätkatakse ilma JWT-ta
+        if (!token && attempt === 0) {
+          await new Promise((r) => setTimeout(r, 3000));
+        }
       }
 
+      // Ilma JWT-ta on dashboard kasutu (kõik päringud annaksid 403),
+      // seega ära navigeeri edasi vaid teavita kasutajat ja logi Firebase'ist välja.
+      if (!token) {
+        alert("Sisselogimine ebaõnnestus — server võis olla unest ärkamas. Palun proovi mõne hetke pärast uuesti.");
+        await signOut(auth);
+        return;
+      }
+
+      localStorage.setItem('jwt', token);
       navigate('/dashboard');
     } catch (error) {
       alert(error.message);

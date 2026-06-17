@@ -19,8 +19,8 @@ function Dashboard() {
 
   const laeOppekavad = () => {
     apiFetch('/api/curricula')
-      .then((res) => res.json())
-      .then((data) => setOppekavad(data))
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setOppekavad(Array.isArray(data) ? data : []))
       .catch(() => {});
   };
 
@@ -45,11 +45,19 @@ function Dashboard() {
         method: "POST",
         body: JSON.stringify({ name: nimi.trim(), year: "2025/2026" }),
       });
+      if (!res.ok) {
+        // 401/403 (aegunud sessioon) käsitleb apiFetch — suunab login'i.
+        // Muud vead näitame siin koos staatusega, mitte üldise teatega.
+        if (res.status !== 401 && res.status !== 403) {
+          alert(`Õppekava loomine ebaõnnestus (HTTP ${res.status}).`);
+        }
+        return;
+      }
       const uus = await res.json();
       setModalOpen(false);
       navigate(`/new/${uus.id}`);
     } catch {
-      alert("Õppekava loomine ebaõnnestus");
+      alert("Õppekava loomine ebaõnnestus — server ei vasta. Proovi mõne hetke pärast uuesti.");
     }
   };
 
