@@ -345,7 +345,7 @@ export default function NewCurriculum() {
       <div className="ncp-canvas" style={{ display: 'flex', flexDirection: 'column' }}>
         {aktiivsevahekaard === 'spiraal' && (
           <div style={{ width: '100%', height: '100%' }}>
-            <TestProjectPage3 data={{ subjects: spiraalData?.subjects }} details={spiraalData?.details} />
+            <TestProjectPage3 data={{ subjects: spiraalData?.subjects }} details={spiraalData?.details} selectedSubject={selectedSubject} />
           </div>
         )}
         {aktiivsevahekaard === 'opitee' && (

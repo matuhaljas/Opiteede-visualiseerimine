@@ -18,6 +18,7 @@ function TestProjectPage2({ data, details, selectedSubject }) {
     const contRef = useRef(null);
     const sceneRef = useRef({ nodes: [] });
     const resetViewRef = useRef(null);
+    const selectedSubjectRef = useRef(selectedSubject);
 
 
     useEffect(() => {
@@ -168,7 +169,9 @@ function TestProjectPage2({ data, details, selectedSubject }) {
                     const curve = new THREE.CatmullRomCurve3(armPts);
                     const armTubeGeo = new THREE.TubeGeometry(curve, 80, 0.04, 8, false);
                     const armTubeMat = new THREE.MeshBasicMaterial({ color: subj.color, opacity: 0.6, transparent: true });
-                    pivot.add(new THREE.Mesh(armTubeGeo, armTubeMat));
+                    const armTubeMesh = new THREE.Mesh(armTubeGeo, armTubeMat);
+                    pivot.add(armTubeMesh);
+                    nodeMeshes.push({ mesh: armTubeMesh, subjectName: subj.name });
                 }
 
                 // Klassipiiride markerid — väike rõngas iga klassi alguses
@@ -191,9 +194,10 @@ function TestProjectPage2({ data, details, selectedSubject }) {
                         })
                         const ring = new THREE.Mesh(ringGeo, ringMat)
                         ring.position.copy(markerPos)
-                        ring.lookAt(camera.position) // pöördub kaamera poole
-                        ring.userData = { label: klass } // hiljem tooltip jaoks
+                        ring.lookAt(camera.position)
+                        ring.userData = { label: klass }
                         pivot.add(ring)
+                        nodeMeshes.push({ mesh: ring, subjectName: subj.name });
                     })
                 }
             });
@@ -203,6 +207,13 @@ function TestProjectPage2({ data, details, selectedSubject }) {
             pivot.add(new THREE.Mesh(coneWire, wireMat));
 
             sceneRef.current = { nodes: nodeMeshes };
+
+            const sel = selectedSubjectRef.current;
+            if (sel) {
+                nodeMeshes.forEach(({ mesh, subjectName }) => {
+                    mesh.visible = subjectName === sel;
+                });
+            }
 
             resetViewRef.current = () => {
                 zoom = 24;
@@ -326,6 +337,7 @@ function TestProjectPage2({ data, details, selectedSubject }) {
     }, [data, details]);
 
     useEffect(() => {
+        selectedSubjectRef.current = selectedSubject;
         const { nodes } = sceneRef.current;
         nodes.forEach(({ mesh, subjectName }) => {
             mesh.visible = !selectedSubject || subjectName === selectedSubject;
