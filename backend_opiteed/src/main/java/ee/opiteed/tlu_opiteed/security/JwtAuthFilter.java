@@ -1,7 +1,5 @@
 package ee.opiteed.tlu_opiteed.security;
 
-import ee.opiteed.tlu_opiteed.repository.UserRepository;
-import ee.opiteed.tlu_opiteed.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +20,6 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -47,15 +44,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            chain.doFilter(request, response);
-            return;
+        // Autendi otse tokeni väidetest (stateless) — ei tee andmebaasipäringut.
+        // Nii toimib autentimine ka peale backendi restarti, kui kasutajatabel on
+        // tühi (nt H2 in-memory). firebaseUid ja role tulevad samadest väidetest,
+        // mis token genereerimisel sisse pandi.
+        String firebaseUid = jwtUtil.extractFirebaseUid(token);
+        String role = jwtUtil.extractRole(token);
+        if (role == null) {
+            role = "USER";
         }
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                email, user.getFirebaseUid(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+                email, firebaseUid,
+                List.of(new SimpleGrantedAuthority("ROLE_" + role))
         );
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
