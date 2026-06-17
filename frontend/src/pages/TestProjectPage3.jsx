@@ -12,13 +12,25 @@ const DEMO_DATA = {
     ]
 };
 
-function TestProjectPage2({ data, details, selectedSubject }) {
+function TestProjectPage2({ data, details, selectedSubject, otsing }) {
 
     const canvasRef = useRef(null);
     const contRef = useRef(null);
     const sceneRef = useRef({ nodes: [] });
     const resetViewRef = useRef(null);
     const selectedSubjectRef = useRef(selectedSubject);
+    const otsingRef = useRef(otsing);
+
+    function applyFilters() {
+        const sel = selectedSubjectRef.current;
+        const search = (otsingRef.current || '').toLowerCase();
+        sceneRef.current.nodes.forEach(({ mesh, subjectName }) => {
+            const subjectPass = !sel || subjectName === sel;
+            const name = mesh.userData.name;
+            const searchPass = !search || (name && name.toLowerCase().includes(search));
+            mesh.visible = subjectPass && searchPass;
+        });
+    }
 
 
     useEffect(() => {
@@ -207,13 +219,7 @@ function TestProjectPage2({ data, details, selectedSubject }) {
             pivot.add(new THREE.Mesh(coneWire, wireMat));
 
             sceneRef.current = { nodes: nodeMeshes };
-
-            const sel = selectedSubjectRef.current;
-            if (sel) {
-                nodeMeshes.forEach(({ mesh, subjectName }) => {
-                    mesh.visible = subjectName === sel;
-                });
-            }
+            applyFilters();
 
             resetViewRef.current = () => {
                 zoom = 24;
@@ -338,11 +344,13 @@ function TestProjectPage2({ data, details, selectedSubject }) {
 
     useEffect(() => {
         selectedSubjectRef.current = selectedSubject;
-        const { nodes } = sceneRef.current;
-        nodes.forEach(({ mesh, subjectName }) => {
-            mesh.visible = !selectedSubject || subjectName === selectedSubject;
-        });
+        applyFilters();
     }, [selectedSubject]);
+
+    useEffect(() => {
+        otsingRef.current = otsing;
+        applyFilters();
+    }, [otsing]);
 
     return (
     <div style={{ width: "100%", height: "100%", position: "relative", display: "flex" }}>
