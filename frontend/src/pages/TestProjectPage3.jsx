@@ -116,7 +116,7 @@ function TestProjectPage2({ data, details, selectedSubject, otsing }) {
             DATA.subjects.forEach((subj, si) => {
                 const armPts = [];
                 const angleOffset = (si / NUM_SUBJECTS) * Math.PI * 2;
-                const interpolationSteps = 20; // points between each topic
+                const interpolationSteps = 60; // points between each topic
 
                 const totalTopics = subj.topics.length;
 
@@ -183,7 +183,7 @@ function TestProjectPage2({ data, details, selectedSubject, otsing }) {
                 // line uses dense armPts so it follows the tube curve
                 if (armPts.length > 1) {
                     const curve = new THREE.CatmullRomCurve3(armPts);
-                    const armTubeGeo = new THREE.TubeGeometry(curve, 80, 0.04, 8, false);
+                    const armTubeGeo = new THREE.TubeGeometry(curve, (totalTopics - 1) * interpolationSteps * 2, 0.04, 6, false);
                     const armTubeMat = new THREE.MeshBasicMaterial({ color: subj.color, opacity: 0.6, transparent: true });
                     const armTubeMesh = new THREE.Mesh(armTubeGeo, armTubeMat);
                     pivot.add(armTubeMesh);
