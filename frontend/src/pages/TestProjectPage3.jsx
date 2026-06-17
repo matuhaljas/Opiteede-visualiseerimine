@@ -12,12 +12,25 @@ const DEMO_DATA = {
     ]
 };
 
-function TestProjectPage2({ data, details, selectedSubject }) {
+function TestProjectPage2({ data, details, selectedSubject, otsing }) {
 
     const canvasRef = useRef(null);
     const contRef = useRef(null);
     const sceneRef = useRef({ nodes: [] });
     const resetViewRef = useRef(null);
+    const selectedSubjectRef = useRef(selectedSubject);
+    const otsingRef = useRef(otsing);
+
+    function applyFilters() {
+        const sel = selectedSubjectRef.current;
+        const search = (otsingRef.current || '').toLowerCase();
+        sceneRef.current.nodes.forEach(({ mesh, subjectName }) => {
+            const subjectPass = !sel || subjectName === sel;
+            const name = mesh.userData.name;
+            const searchPass = !search || (name && name.toLowerCase().includes(search));
+            mesh.visible = subjectPass && searchPass;
+        });
+    }
 
 
     useEffect(() => {
@@ -172,7 +185,9 @@ function TestProjectPage2({ data, details, selectedSubject }) {
                     const curve = new THREE.CatmullRomCurve3(armPts);
                     const armTubeGeo = new THREE.TubeGeometry(curve, 80, 0.04, 8, false);
                     const armTubeMat = new THREE.MeshBasicMaterial({ color: subj.color, opacity: 0.6, transparent: true });
-                    pivot.add(new THREE.Mesh(armTubeGeo, armTubeMat));
+                    const armTubeMesh = new THREE.Mesh(armTubeGeo, armTubeMat);
+                    pivot.add(armTubeMesh);
+                    nodeMeshes.push({ mesh: armTubeMesh, subjectName: subj.name });
                 }
 
                 // Klassipiiride markerid — väike rõngas iga klassi alguses
@@ -195,9 +210,10 @@ function TestProjectPage2({ data, details, selectedSubject }) {
                         })
                         const ring = new THREE.Mesh(ringGeo, ringMat)
                         ring.position.copy(markerPos)
-                        ring.lookAt(camera.position) // pöördub kaamera poole
-                        ring.userData = { label: klass } // hiljem tooltip jaoks
+                        ring.lookAt(camera.position)
+                        ring.userData = { label: klass }
                         pivot.add(ring)
+                        nodeMeshes.push({ mesh: ring, subjectName: subj.name });
                     })
                 }
             });
@@ -207,6 +223,7 @@ function TestProjectPage2({ data, details, selectedSubject }) {
             pivot.add(new THREE.Mesh(coneWire, wireMat));
 
             sceneRef.current = { nodes: nodeMeshes };
+            applyFilters();
 
             resetViewRef.current = () => {
                 zoom = 24;
@@ -330,11 +347,14 @@ function TestProjectPage2({ data, details, selectedSubject }) {
     }, [data, details]);
 
     useEffect(() => {
-        const { nodes } = sceneRef.current;
-        nodes.forEach(({ mesh, subjectName }) => {
-            mesh.visible = !selectedSubject || subjectName === selectedSubject;
-        });
+        selectedSubjectRef.current = selectedSubject;
+        applyFilters();
     }, [selectedSubject]);
+
+    useEffect(() => {
+        otsingRef.current = otsing;
+        applyFilters();
+    }, [otsing]);
 
     return (
         <div style={{ width: "100%", height: "100%", position: "relative", display: "flex" }}>

@@ -1,22 +1,19 @@
 import { useNavigate } from 'react-router-dom'
-import { signInWithPopup } from 'firebase/auth'
-import { doc, setDoc } from 'firebase/firestore'
-import { auth, googleProvider, db } from '../firebaseConfig'
 import './HomePage.css'
+import { loginWithGoogleAndStoreJwt } from '../auth'
 
 export default function HomePage() {
   const navigate = useNavigate()
 
   const loginWithGoogle = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider)
-      const user = result.user
-      await setDoc(doc(db, "users", user.uid), {
-        name: user.displayName,
-        email: user.email,
-        lastLogin: new Date()
-      })
-      navigate('/dashboard')
+      // Hangi ka JWT (mitte ainult Firebase login) — muidu suunaks ProtectedRoute
+      // kasutaja JWT puudumise tõttu /login-i ja tekiks topelt-sisselogimine.
+      if (await loginWithGoogleAndStoreJwt()) {
+        navigate('/dashboard')
+      } else {
+        alert("Sisselogimine ebaõnnestus — server võis olla unest ärkamas. Palun proovi mõne hetke pärast uuesti.")
+      }
     } catch (error) {
       alert(error.message)
     }
