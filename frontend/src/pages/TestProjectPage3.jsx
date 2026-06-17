@@ -116,7 +116,7 @@ function TestProjectPage2({ data, details, selectedSubject, otsing }) {
             DATA.subjects.forEach((subj, si) => {
                 const armPts = [];
                 const angleOffset = (si / NUM_SUBJECTS) * Math.PI * 2;
-                const interpolationSteps = 60; // points between each topic
+                const interpolationSteps = 30; // points between each topic
 
                 const totalTopics = subj.topics.length;
 
