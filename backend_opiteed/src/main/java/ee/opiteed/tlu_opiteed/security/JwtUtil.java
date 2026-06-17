@@ -19,15 +19,20 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, String role, String firebaseUid) {
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
                 .subject(email)
                 .claim("role", role)
+                .claim("firebaseUid", firebaseUid)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key)
                 .compact();
+    }
+
+    public String extractFirebaseUid(String token) {
+        return (String) extractClaims(token).get("firebaseUid");
     }
 
     public Claims extractClaims(String token) {

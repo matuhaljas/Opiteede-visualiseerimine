@@ -5,6 +5,7 @@ import ee.opiteed.tlu_opiteed.dto.ShareInviteRequest;
 import ee.opiteed.tlu_opiteed.dto.ShareInviteResponse;
 import ee.opiteed.tlu_opiteed.dto.SharePublicRequest;
 import ee.opiteed.tlu_opiteed.service.CurriculumShareService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/curricula/{curriculumId}/shares")
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class CurriculumShareController {
     @PostMapping("/invite")
     public ResponseEntity<ShareInviteResponse> invite(
             @PathVariable Long curriculumId,
-            @RequestBody ShareInviteRequest req,
+            @Valid @RequestBody ShareInviteRequest req,
             Authentication auth) {
         String sharedBy = auth != null ? auth.getName() : null;
         return ResponseEntity.status(HttpStatus.CREATED).body(shareService.invite(curriculumId, req, sharedBy));

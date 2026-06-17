@@ -34,7 +34,7 @@ public class AuthService {
                                 .build()
                 ));
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getFirebaseUid());
         return new AuthResponse(token, user.getEmail(), user.getName(), user.getRole().name());
     }
 }

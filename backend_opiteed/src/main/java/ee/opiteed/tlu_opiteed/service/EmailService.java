@@ -1,11 +1,13 @@
 package ee.opiteed.tlu_opiteed.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -34,7 +36,7 @@ public class EmailService {
             );
             mailSender.send(message);
         } catch (Exception e) {
-            // emaili saatmise viga ei blokeeri kutsumist
+            log.error("Emaili saatmine ebaõnnestus aadressile {}", toEmail, e);
         }
     }
 }

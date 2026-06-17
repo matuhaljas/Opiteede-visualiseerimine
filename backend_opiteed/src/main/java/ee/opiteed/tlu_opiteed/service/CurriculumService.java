@@ -32,11 +32,11 @@ public class CurriculumService {
         return toResponse(findOrThrow(id));
     }
 
-    public CurriculumResponse create(CurriculumRequest req) {
+    public CurriculumResponse create(CurriculumRequest req, String ownerUid) {
         Curriculum saved = curriculumRepository.save(Curriculum.builder()
                 .name(req.getName())
                 .year(req.getYear())
-                .ownerUid(req.getOwnerUid())
+                .ownerUid(ownerUid)
                 .build());
         return toResponse(saved);
     }
