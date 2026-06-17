@@ -313,7 +313,7 @@ function TestProjectPage2({ data, details, selectedSubject, otsing }) {
             //Zoom
 
             canvas.addEventListener('wheel', e => {
-                zoom = Math.max(8, Math.min(45, zoom + e.deltaY * 0.04));
+                zoom = Math.max(8, Math.min(120, zoom + e.deltaY * 0.04));
                 e.preventDefault();
             }, { passive: false, signal });
 
