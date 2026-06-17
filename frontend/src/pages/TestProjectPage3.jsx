@@ -12,10 +12,12 @@ const DEMO_DATA = {
     ]
 };
 
-function TestProjectPage2({ data, details }) {
+function TestProjectPage2({ data, details, selectedSubject }) {
 
     const canvasRef = useRef(null);
     const contRef = useRef(null);
+    const sceneRef = useRef({ nodes: [] });
+    const resetViewRef = useRef(null);
 
 
     useEffect(() => {
@@ -72,7 +74,7 @@ function TestProjectPage2({ data, details }) {
             const tubeWraps = Math.max(2, maxKlassid); // 1 klass = 1 täisring
             const LOAD_CONE_HEIGHT = Math.max(40, maxKlassid * 8); // kõrgus skaleerub ka
 
-            const nodes = [];
+            const nodeMeshes = [];
 
             function coneRadius(y) {
                 const t = (y - CONE_BASE_Y) / CONE_HEIGHT;
@@ -158,7 +160,7 @@ function TestProjectPage2({ data, details }) {
                     }
 
                     pivot.add(mesh);
-                    nodes.push(mesh);
+                    nodeMeshes.push({ mesh, subjectName: subj.name });
                 });
 
                 // line uses dense armPts so it follows the tube curve
@@ -200,6 +202,13 @@ function TestProjectPage2({ data, details }) {
             const wireMat = new THREE.MeshBasicMaterial({ color: 0x3a3a5a, wireframe: true, transparent: true, opacity: 0.12 });
             pivot.add(new THREE.Mesh(coneWire, wireMat));
 
+            sceneRef.current = { nodes: nodeMeshes };
+
+            resetViewRef.current = () => {
+                zoom = 24;
+                targetRotX = 3.14; targetRotY = 0; targetPanY = 0;
+            };
+
             let isDragging = false, prevX = 0, prevY = 0;
             let isPanning = false;
             let panY = 0, targetPanY = 0;
@@ -222,7 +231,8 @@ function TestProjectPage2({ data, details }) {
                 mouse.x = (cx / W) * 2 - 1;
                 mouse.y = -(cy / H) * 2 + 1;
                 raycaster.setFromCamera(mouse, camera);
-                const hits = raycaster.intersectObjects(nodes);
+                const visible = nodeMeshes.filter(o => o.mesh.visible).map(o => o.mesh);
+                const hits = raycaster.intersectObjects(visible);
                 if (hits.length) {
                     const n = hits[0].object;
                     if (hoveredNode !== n) {
@@ -310,13 +320,43 @@ function TestProjectPage2({ data, details }) {
             controller.abort();
             if (rafId) cancelAnimationFrame(rafId);
             if (renderer) renderer.dispose();
+            sceneRef.current = { nodes: [] };
+            resetViewRef.current = null;
         };
     }, [data, details]);
+
+    useEffect(() => {
+        const { nodes } = sceneRef.current;
+        nodes.forEach(({ mesh, subjectName }) => {
+            mesh.visible = !selectedSubject || subjectName === selectedSubject;
+        });
+    }, [selectedSubject]);
 
     return (
     <div style={{ width: "100%", height: "100%", position: "relative", display: "flex" }}>
         <div ref={contRef} style={{ position: "relative", flex: 1, height: "100%" }}>
             <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
+
+                <button
+                    onClick={() => resetViewRef.current?.()}
+                    style={{
+                        position: 'absolute', top: '12px', right: '12px',
+                        background: 'rgba(255,255,255,0.92)',
+                        border: '1px solid #dde2ea',
+                        borderRadius: '8px',
+                        padding: '6px 14px',
+                        fontSize: '12px',
+                        color: '#003082',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        fontWeight: 600,
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.10)',
+                        zIndex: 10,
+                    }}
+                >
+                    ⟳ Lähtesta vaade
+                </button>
+
             <div id="tooltip" style={{ position: "absolute", top: "0", left: "0", pointerEvents: "none", opacity: "0", transition: "opacity 0.15s", background: "rgba(10,10,20,0.88)", border: "0.5px solid rgba(255,255,255,0.15)", borderRadius: "8px", padding: "10px 14px", maxWidth: "220px" }}>
                 <div id="tt-subject" style={{ fontSize: "11px", color: "#7c8aff", fontFamily: "sans-serif", marginBottom: "2px" }}></div>
                 <div id="tt-name" style={{ fontSize: "13px", color: "#e8e8f0", fontFamily: "sans-serif", fontWeight: "500", lineHeight: "1.4" }}></div>
