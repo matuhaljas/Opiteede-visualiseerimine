@@ -253,7 +253,7 @@ function TestProjectPage2({ data, details, selectedSubject, otsing }) {
                 mouse.y = -(cy / H) * 2 + 1;
                 raycaster.setFromCamera(mouse, camera);
                 const visible = nodeMeshes.filter(o => o.mesh.visible).map(o => o.mesh);
-                const hits = raycaster.intersectObjects(visible);
+                const hits = raycaster.intersectObjects(visible).filter(h => h.object.userData.name);
                 if (hits.length) {
                     const n = hits[0].object;
                     if (hoveredNode !== n) {
