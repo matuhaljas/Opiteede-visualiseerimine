@@ -29,7 +29,7 @@
 
 ## 🎯 Eesmärk ja lühikirjeldus
 
-Õpetajatel ja õppekavade koostajatel on raske näha, **kuidas teemad õppeastmete lõikes korduvad, süvenevad ja üksteisest sõltuvad** — staatiline tekstiline õppekava ei näita neid seoseid. See rakendus muudab staatilise õppekava (CSV / JSON / RDF) **interaktiivseks graafiks**: spiraalvaade näitab õpiteid ajas arenevate spiraalidena (teemad korduvad ja süvenevad kooliastmeti), õpitee-graaf aga ühe konkreetse teema eeltingimusi ja väljundeid. Kasutaja saab õppekavasid importida, redigeerida, filtreerida, otsida, kõrvutada ning teistega jagada. Andmemudeli põhiühikud on **KnowBit** (teadmusühik) ja **SkillBit** (soorituspõhine oskus).
+Õpetajatel ja õppekavade koostajatel on raske näha, **kuidas teemad õppeastmete lõikes korduvad, süvenevad ja üksteisest sõltuvad** — staatiline tekstiline õppekava ei näita neid seoseid. See rakendus muudab staatilise õppekava (JSON-LD, JSON) **interaktiivseks graafiks**: spiraalvaade näitab õpiteid ajas arenevate spiraalidena (teemad korduvad ja süvenevad kooliastmeti), õpitee-graaf aga ühe konkreetse teema eeltingimusi ja väljundeid. Kasutaja saab õppekavasid importida, redigeerida, filtreerida, otsida, kõrvutada ning teistega jagada. Andmemudeli põhiühikud on **KnowBit** (teadmusühik) ja **SkillBit** (soorituspõhine oskus).
 
 ---
 
@@ -83,7 +83,7 @@ Rakendus on loodud **Tallinna Ülikooli Digitehnoloogiate instituudi** kursuse *
 ## ✨ Põhifunktsioonid
 
 - Spiraalvaade (makro) ja õpitee-graaf (mikro), hover-info ja sisse/välja suumimine
-- Import/eksport: **CSV, JSON, RDF/XML**
+- Import/eksport: **JSON, JSON-LD**
 - Filtreerimine kooliastme ja valdkonna kaupa, otsing
 - Õppekavade loomine, muutmine ja **jagamine** (vaataja / kaasautor / admin)
 - Avalik jagamislink anonüümseks vaatamiseks
@@ -303,7 +303,7 @@ Kõik `/api/**` otspunktid (välja arvatud `/api/auth/**`) nõuavad kehtivat JWT
 | GET | `/api/curricula` | Kasutaja õppekavade loend |
 | POST | `/api/curricula` | Uue õppekava loomine |
 | GET/PUT/DELETE | `/api/curricula/{id}` | Õppekava lugemine / muutmine / kustutamine |
-| GET | `/api/curricula/{id}/export` | Eksport (CSV/JSON/RDF) |
+| GET | `/api/curricula/{id}/export` | Eksport (JSON) |
 | POST | `/api/curricula/{id}/import` | Import |
 | POST | `/api/curricula/{id}/shares/invite` | Jagamiskutse |
 | PATCH | `/api/curricula/{id}/shares/public` | Avaliku nähtavuse lülitamine |
