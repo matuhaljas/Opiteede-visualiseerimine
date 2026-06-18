@@ -82,6 +82,17 @@ function Dashboard() {
     setModalOpen(false);
   };
 
+  const handleDelete = async (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm("Kas oled kindel, et tahad selle õppekava kustutada?")) return;
+    try {
+      await apiFetch(`/api/curricula/${id}`, { method: "DELETE" });
+      setOppekavad((prev) => prev.filter((ok) => ok.id !== id));
+    } catch {
+      alert("Kustutamine ebaõnnestus");
+    }
+  };
+
   const formatKuupaev = (iso) =>
     iso ? new Date(iso).toLocaleDateString("et-EE") : "";
 
@@ -110,6 +121,7 @@ function Dashboard() {
               <div key={ok.id} className="projekt-kaart" onClick={() => navigate(`/new/${ok.id}`)}>
                 <div className="projekt-kaart-top">
                   <h3>{ok.name}</h3>
+                  <button className="projekt-delete" onClick={(e) => handleDelete(e, ok.id)}>✕</button>
                 </div>
                 <p className="projekt-kuupaev">Viimati muudetud: {formatKuupaev(ok.updatedAt)}</p>
                 <div className="projekt-bitid">
@@ -121,25 +133,26 @@ function Dashboard() {
           </div>
         </div>
 
-        {jagatud.length > 0 && (
-          <div style={{ padding: "24px 32px 0" }}>
-            <h2>Minuga jagatud projektid</h2>
-            <div className="projekt-grid">
-              {jagatud.map((ok) => (
-                <div key={ok.id} className="projekt-kaart" onClick={() => navigate(`/new/${ok.id}`)}>
-                  <div className="projekt-kaart-top">
-                    <h3>{ok.name}</h3>
-                  </div>
-                  <p className="projekt-kuupaev">Viimati muudetud: {formatKuupaev(ok.updatedAt)}</p>
-                  <div className="projekt-bitid">
-                    <span className="projekt-knowbit">● {ok.knowBitCount} KnowBits</span>
-                    <span className="projekt-skillbit">● {ok.skillBitCount} SkillBits</span>
-                  </div>
+        <div style={{ padding: "24px 32px 0" }}>
+          <h2>Minuga jagatud projektid</h2>
+          <div className="projekt-grid">
+            {jagatud.map((ok) => (
+              <div key={ok.id} className="projekt-kaart" onClick={() => navigate(`/new/${ok.id}`)}>
+                <div className="projekt-kaart-top">
+                  <h3>{ok.name}</h3>
                 </div>
-              ))}
-            </div>
+                <p className="projekt-kuupaev">Viimati muudetud: {formatKuupaev(ok.updatedAt)}</p>
+                <div className="projekt-bitid">
+                  <span className="projekt-knowbit">● {ok.knowBitCount} KnowBits</span>
+                  <span className="projekt-skillbit">● {ok.skillBitCount} SkillBits</span>
+                </div>
+              </div>
+            ))}
+            {jagatud.length === 0 && (
+              <p style={{ color: "#6b7280", fontSize: "0.9rem" }}>Sinuga pole veel ühtegi projekti jagatud.</p>
+            )}
           </div>
-        )}
+        </div>
       </main>
 
       <footer className="footer" />

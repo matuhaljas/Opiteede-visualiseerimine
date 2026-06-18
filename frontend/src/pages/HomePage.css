@@ -236,6 +236,22 @@ dialog {
   color: #1a1a1a;
 }
 
+.projekt-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 0.85rem;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.projekt-delete:hover {
+  color: #dc2626;
+}
+
 .projekt-staatus {
   font-size: 0.75rem;
   border: 1px solid #dde2ea;
