@@ -35,7 +35,7 @@
 
 ## 🏫 Kelle ja mille raames
 
-Rakendus on loodud **Tallinna Ülikooli Digitehnoloogiate instituudi** kursuse **„Interaktsioonidisaini alused" (IFIFB/25.DT)** arendusprojektina (Meeskond 10). Projekt järgib kasutajakeskse disaini protsessi ning seda on valideeritud Hi-Fi prototüübi kasutajatestidega (20 kasutajat, AttrakDiff).
+Rakendus on loodud **Tallinna Ülikooli Digitehnoloogiate instituudi** kursuse **„Tarkvaraarenduse projekt" (IFIFB/25.DT)** arendusprojektina (Meeskond 10). Projekt järgib kasutajakeskse disaini protsessi ning seda on valideeritud Hi-Fi prototüübi kasutajatestidega (20 kasutajat, AttrakDiff).
 
 ---
 
