@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌀 Õpiteede visualiseerimine
+# Õpiteede visualiseerimine
 
 **Interaktiivne veebirakendus riiklike õppekavade visualiseerimiseks ajas arenevate spiraalide ja õpitee-graafidena.**
 
@@ -10,7 +10,7 @@
 
 ---
 
-## 📸 Ekraanipildid
+## Ekraanipildid
 
 | Spiraalvaade (makro) | Õpitee-graaf (mikro) |
 |:---:|:---:|
@@ -22,19 +22,19 @@
 
 ---
 
-## 🎯 Eesmärk ja lühikirjeldus
+## Eesmärk ja lühikirjeldus
 
 Õpetajatel ja õppekavade koostajatel on raske näha, **kuidas teemad õppeastmete lõikes korduvad, süvenevad ja üksteisest sõltuvad** — staatiline tekstiline õppekava ei näita neid seoseid. See rakendus muudab staatilise õppekava (JSON-LD, JSON) **interaktiivseks graafiks**: spiraalvaade näitab õpiteid ajas arenevate spiraalidena (teemad korduvad ja süvenevad kooliastmeti), õpitee-graaf aga ühe konkreetse teema eeltingimusi ja väljundeid. Kasutaja saab õppekavasid importida, redigeerida, filtreerida, otsida, kõrvutada ning teistega jagada. Andmemudeli põhiühikud on **KnowBit** (teadmusühik) ja **SkillBit** (soorituspõhine oskus).
 
 ---
 
-## 🏫 Kelle ja mille raames
+## Kelle ja mille raames
 
 Rakendus on loodud **Tallinna Ülikooli Digitehnoloogiate instituudi** kursuse **„Tarkvaraarenduse projekt" (IFIFB/25.DT)** arendusprojektina (Meeskond 10). Projekt järgib kasutajakeskse disaini protsessi ning seda on valideeritud Hi-Fi prototüübi kasutajatestidega (20 kasutajat, AttrakDiff).
 
 ---
 
-## 👥 Autorid (Meeskond 10)
+## Autorid (Meeskond 10)
 
 - **Marcus Haljasoks** (meeskonna juht)
 - Risto Leitalu
@@ -44,7 +44,7 @@ Rakendus on loodud **Tallinna Ülikooli Digitehnoloogiate instituudi** kursuse *
 
 ---
 
-## 🛠 Kasutatud tehnoloogiad ja versioonid
+## Kasutatud tehnoloogiad ja versioonid
 
 ### Backend
 | Tehnoloogia | Versioon |
@@ -75,7 +75,7 @@ Rakendus on loodud **Tallinna Ülikooli Digitehnoloogiate instituudi** kursuse *
 
 ---
 
-## ✨ Põhifunktsioonid
+## Põhifunktsioonid
 
 - Spiraalvaade (makro) ja õpitee-graaf (mikro), hover-info ja sisse/välja suumimine
 - Import/eksport: **JSON, JSON-LD**
@@ -87,7 +87,7 @@ Rakendus on loodud **Tallinna Ülikooli Digitehnoloogiate instituudi** kursuse *
 
 ---
 
-## 🏗 Arhitektuur
+## Arhitektuur
 
 ```
 opiteede_projekt/
@@ -115,7 +115,7 @@ Autentimine: kasutaja logib Google'iga sisse (Firebase) → frontend saadab `POS
 
 ---
 
-## 🚀 Paigaldus ja arenduskeskkonna ülesseadmine
+## Paigaldus ja arenduskeskkonna ülesseadmine
 
 ### Eeltingimused
 
@@ -181,7 +181,7 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=<sender-id>
 VITE_FIREBASE_APP_ID=<app-id>
 ```
 
-> ⚠️ Repos olevad `.env.dev` / `.env.prod` sisaldavad näidisprojekti Firebase'i väärtusi. Päris juurutuse jaoks loo **oma Firebase'i projekt** ja asenda väärtused. Veendu, et Firebase'i konsoolis on lubatud domeenid (localhost arenduseks).
+> Repos olevad `.env.dev` / `.env.prod` sisaldavad näidisprojekti Firebase'i väärtusi. Päris juurutuse jaoks loo **oma Firebase'i projekt** ja asenda väärtused. Veendu, et Firebase'i konsoolis on lubatud domeenid (localhost arenduseks).
 
 ### 4. Tootmis-build
 
@@ -200,7 +200,7 @@ cd backend_opiteed && docker build -t opiteed-backend . && docker run -p 8080:80
 
 ---
 
-## 🗄 Andmebaas
+## Andmebaas
 
 Arenduses (`dev`-profiil) kasutatakse **H2 in-memory** andmebaasi ja tootmises (`prod`-profiil) **PostgreSQL**-i. Mõlemal juhul loob Hibernate tabelid automaatselt (`spring.jpa.hibernate.ddl-auto=update`) JPA-olemite põhjal — **eraldi loomise skripti käivitamine ei ole vajalik**.
 
@@ -288,7 +288,7 @@ CREATE DATABASE opiteed_db;
 
 ---
 
-## 🔌 REST API (ülevaade)
+## REST API (ülevaade)
 
 Kõik `/api/**` otspunktid (välja arvatud `/api/auth/**`) nõuavad kehtivat JWT-d päises `Authorization: Bearer <token>`.
 
