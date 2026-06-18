@@ -12,9 +12,6 @@
 
 ## 📸 Ekraanipildid
 
-> ℹ️ **Placeholder** — pildid tuleb veel lisada kausta [`docs/screenshots/`](docs/screenshots/).
-> Hoiame ekraanipildid samas repos, et need ära ei kaoks. Palun hoia failid väikesed (soovitavalt < 500 KB).
-
 | Spiraalvaade (makro) | Õpitee-graaf (mikro) |
 |:---:|:---:|
 | ![Spiraalvaade](docs/screenshots/spiraalvaade.png) | ![Õpitee-graaf](docs/screenshots/opitee-graaf.png) |
@@ -22,8 +19,6 @@
 | Töölaud (õppekavade haldus) |
 |:---:|
 | ![Töölaud](docs/screenshots/dashboard.png) |
-
-<!-- Asenda ülaltoodud failid päris ekraanipiltidega kaustas docs/screenshots/ -->
 
 ---
 
