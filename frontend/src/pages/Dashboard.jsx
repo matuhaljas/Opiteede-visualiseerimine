@@ -16,18 +16,25 @@ function Dashboard() {
   const [nimi, setNimi] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [oppekavad, setOppekavad] = useState([]);
+  const [jagatud, setJagatud] = useState([]);
 
-  const laeOppekavad = () => {
+  const laeOppekavad = (u) => {
     apiFetch('/api/curricula')
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => setOppekavad(Array.isArray(data) ? data : []))
       .catch(() => {});
+    if (u?.email) {
+      apiFetch(`/api/curricula/shared-with-me?email=${encodeURIComponent(u.email)}`)
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data) => setJagatud(Array.isArray(data) ? data : []))
+        .catch(() => {});
+    }
   };
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      if (u) laeOppekavad();
+      if (u) laeOppekavad(u);
     });
     return unsub;
   }, []);
@@ -113,6 +120,26 @@ function Dashboard() {
             ))}
           </div>
         </div>
+
+        {jagatud.length > 0 && (
+          <div style={{ padding: "24px 32px 0" }}>
+            <h2>Minuga jagatud projektid</h2>
+            <div className="projekt-grid">
+              {jagatud.map((ok) => (
+                <div key={ok.id} className="projekt-kaart" onClick={() => navigate(`/new/${ok.id}`)}>
+                  <div className="projekt-kaart-top">
+                    <h3>{ok.name}</h3>
+                  </div>
+                  <p className="projekt-kuupaev">Viimati muudetud: {formatKuupaev(ok.updatedAt)}</p>
+                  <div className="projekt-bitid">
+                    <span className="projekt-knowbit">● {ok.knowBitCount} KnowBits</span>
+                    <span className="projekt-skillbit">● {ok.skillBitCount} SkillBits</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       <footer className="footer" />

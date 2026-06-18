@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface CurriculumShareRepository extends JpaRepository<CurriculumShare, Long> {
     List<CurriculumShare> findByCurriculumId(Long curriculumId);
     Optional<CurriculumShare> findByCurriculumIdAndEmail(Long curriculumId, String email);
+    List<CurriculumShare> findByEmail(String email);
 }

@@ -4,6 +4,7 @@ import ee.opiteed.tlu_opiteed.dto.CurriculumRequest;
 import ee.opiteed.tlu_opiteed.dto.CurriculumResponse;
 import ee.opiteed.tlu_opiteed.entity.Curriculum;
 import ee.opiteed.tlu_opiteed.repository.CurriculumRepository;
+import ee.opiteed.tlu_opiteed.repository.CurriculumShareRepository;
 import ee.opiteed.tlu_opiteed.repository.KnowBitRepository;
 import ee.opiteed.tlu_opiteed.repository.SkillBitRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +23,20 @@ public class CurriculumService {
     private final CurriculumRepository curriculumRepository;
     private final KnowBitRepository knowBitRepository;
     private final SkillBitRepository skillBitRepository;
+    private final CurriculumShareRepository shareRepository;
 
     public List<CurriculumResponse> getByOwner(String ownerUid) {
         return curriculumRepository.findByOwnerUidOrderByUpdatedAtDesc(ownerUid)
                 .stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    public List<CurriculumResponse> getSharedWithMe(String email) {
+        return shareRepository.findByEmail(email).stream()
+                .map(share -> curriculumRepository.findById(share.getCurriculumId()))
+                .filter(java.util.Optional::isPresent)
+                .map(java.util.Optional::get)
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     public CurriculumResponse getById(Long id) {

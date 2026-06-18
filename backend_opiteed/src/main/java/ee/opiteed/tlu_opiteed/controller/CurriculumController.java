@@ -24,6 +24,11 @@ public class CurriculumController {
         return ResponseEntity.ok(curriculumService.getByOwner(ownerUid));
     }
 
+    @GetMapping("/shared-with-me")
+    public ResponseEntity<List<CurriculumResponse>> getSharedWithMe(@RequestParam String email) {
+        return ResponseEntity.ok(curriculumService.getSharedWithMe(email));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<CurriculumResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(curriculumService.getById(id));
