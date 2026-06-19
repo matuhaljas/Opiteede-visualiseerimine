@@ -307,6 +307,27 @@ Kõik `/api/**` otspunktid (välja arvatud `/api/auth/**`) nõuavad kehtivat JWT
 
 ---
 
+## Testimine
+
+Lisaks Hi-Fi prototüübi kasutajatestidele (vt eespool) on rakenduse **avalik tootmis-demo** läbinud **manuaaltestimise [Playwrightiga](https://playwright.dev/)** (Chromium). Testiti nii sisselogimata avalikku poolt (esileht, login-leht, marsruutimine, juurdepääsukontroll, responsiivsus) kui ka sisselogimist nõudvat funktsionaalsust (töölaud, õppekava loomine/redigeerimine, ühikute lisamine, eksport, otsing, visualiseeringud, jagamine).
+
+**Töötab korrektselt:** Google'iga sisselogimine, õppekavade CRUD, ühikute lisamine ja püsivus, JSON-eksport, otsing, makro-/mikro-vaade, kustutamine (kinnitusega) ning kaitstud teede juurdepääsukontroll.
+
+**Olulisemad leitud probleemid:**
+
+| Raskusaste | Leid |
+|---|---|
+| 🔴 Kõrge | Arendus-/testlehed (`/test-project*`) on tootmises avalikult ligi |
+| 🔴 Kõrge | Olematu URL kuvab tühja lehe — 404-leht puudub |
+| 🔴 Kõrge | „Avalik juurdepääs" (avalik jagamine) on UI-s ühendamata — lüliti ei salvesta ega kuva linki |
+| 🟠 Keskmine | Vigase e-postiga jagamiskutse tagastab HTTP 500 (ei valideerita) |
+| 🟠 Keskmine | Jagamiskutse blokeerub sünkroonsel e-kirja saatmisel (pikk ootamine) |
+| 🟠 Keskmine | Uue (tühja) õppekava ühikule ei saa ainet määrata |
+
+> 📋 **Täielik manuaaltestimise raport** (kõik leiud, testjuhtumid TC-1.x–TC-7.x ja ekraanipildid): [`docs/manuaaltestimine/MANUAALTESTIMINE.md`](docs/manuaaltestimine/MANUAALTESTIMINE.md)
+
+---
+
 ## 📄 Litsents
 
 Õppeprojekt — Tallinna Ülikool, Digitehnoloogiate instituut (2025/2026).
