@@ -1,0 +1,21 @@
+{
+  "name": "TEST_Claude_manuaaltest",
+  "year": "2025/2026",
+  "knowbits": [
+    {
+      "id": 37334,
+      "title": "Murrud ja jagamine",
+      "description": "Murdude põhitehted ja seos jagamisega",
+      "subject": "",
+      "gradeLevel": "1. klass",
+      "depthLevel": "Tase 1",
+      "importance": "Määramata",
+      "notes": "Testmärge Claude'i poolt",
+      "orderIndex": null,
+      "curriculumId": 43,
+      "createdBy": "ukukurm@tlu.ee",
+      "createdAt": "2026-06-19T21:27:35.482445"
+    }
+  ],
+  "skillbits": []
+}
