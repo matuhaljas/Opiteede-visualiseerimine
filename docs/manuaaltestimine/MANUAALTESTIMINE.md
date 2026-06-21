@@ -121,7 +121,7 @@ Login-nupule vajutamisel ilmub konsooli korduvalt:
 **Logimisjärgsed (testkontoga kinnitatud) 🆕:**
 
 - **Google'iga sisselogimine** õnnestub ja suunab töölauale; kuvatakse „Tere tulemast, {nimi}".
-- **Töölaud:** õppekavade loend, KnowBit/SkillBit arvud ja „Viimati muudetud" kuupäev (et-EE) on korrektsed (`dashboard.png`).
+- **Töölaud:** õppekavade loend, KnowBit/SkillBit arvud ja „Viimati muudetud" kuupäev (et-EE) on korrektsed.
 - **Õppekava loomine:** modaal → POST `/api/curricula` → suunab `/new/{id}`-le. Tühi nimi ei loo midagi.
 - **Ühiku (KnowBit) lisamine:** salvestub (POST `/api/knowbits`), arv uueneb, andmed püsivad (kinnitatud eksordis ja mikro-vaates).
 - **Eksport (JSON):** laeb alla korrektse, täieliku JSON-i kõigi väljadega (`eksport-naidis.json`).
@@ -259,7 +259,6 @@ Allolev jäi automaattestis katmata — soovitan käsitsi kontrollida:
 |---|---|
 | `home-desktop.png` / `home-mobile.png` | Esileht lauaarvutis ja mobiilis |
 | `test-project.png` / `test-project2-mobile.png` / `test-project3-desktop.png` | Avalikud testlehed (H1) |
-| `dashboard.png` | Töölaud sisse logituna |
 | `mikro-graph.png` | Õpitee Graaf (mikro) vaade ühikuga |
 | `share-modal.png` / `share-public-on.png` | Jagamismodaal (lüliti väljas / sees — link puudub, H3) |
 | `eksport-naidis.json` | Eksporditud õppekava näidis (TC-4.1) |
